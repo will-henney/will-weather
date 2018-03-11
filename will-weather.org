@@ -62,6 +62,7 @@ CLOSED: [2018-03-11 Sun 00:02]
   )
 
   fig.savefig(plotfile)
+  fig.savefig(plotfile.replace(".png", ".pdf"))
 
 
 #+END_SRC

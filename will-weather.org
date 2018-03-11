@@ -10,7 +10,7 @@
 + These are in my [[file:~/.netatmorc]]
 + Passwords and keys are also stored in 1Password vault
 ** Available stations
-#+BEGIN_SRC sh :results verbatim
+#+BEGIN_SRC sh :results verbatim :exports both
 ~/Source/netatmo/netatmo.py list
 #+END_SRC
 
@@ -21,7 +21,7 @@
 ** Download data into CSV files
 Run this periodically - it should just grab the new data
 
-#+BEGIN_SRC sh :results verbatim
+#+BEGIN_SRC sh :results verbatim :exports both
 ~/Source/netatmo/netatmo.py fetch
 #+END_SRC
 
@@ -38,7 +38,7 @@ Run this periodically - it should just grab the new data
 ** DONE Make graphs
 CLOSED: [2018-03-11 Sun 00:02]
 
-#+BEGIN_SRC python :return plotfile :results file
+#+BEGIN_SRC python :return plotfile :results file :exports both
   import pandas as pd
   from matplotlib import pyplot as plt
   import seaborn as sns

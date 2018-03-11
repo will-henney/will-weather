@@ -1,0 +1,68 @@
+* Getting my weather data from Netatmos station
+** Installing Python netatmo api library
++ There are two
++ This one seems the best
+  + https://github.com/rene-d/netatmo
+  + [[file:~/Source/netatmo/]]
+** Setting credentials
++ These are in my [[file:~/.netatmorc]]
++ Passwords and keys are also stored in 1Password vault
+** Available stations
+#+BEGIN_SRC sh :results verbatim
+~/Source/netatmo/netatmo.py list
+#+END_SRC
+
+#+RESULTS:
+: 1 station 70:ee:50:22:ce:e6 Privada Hijos del Ejército Morelia MX
+:    module 70:ee:50:22:ce:e6 indoor Temperature,CO2,Humidity,Noise,Pressure
+:    module 02:00:00:22:b8:7e outdoor Temperature,Humidity
+** Download data into CSV files
+Run this periodically - it should just grab the new data
+
+#+BEGIN_SRC sh :results verbatim
+~/Source/netatmo/netatmo.py fetch
+#+END_SRC
+
+#+RESULTS:
+: station_name : Privada Hijos del Ejército
+: device_id    : 70:ee:50:22:ce:e6
+: module_name  : indoor
+: data_type    : ['Temperature', 'CO2', 'Humidity', 'Noise', 'Pressure']
+: module_id    : 02:00:00:22:b8:7e
+: module_name  : outdoor
+: data_type    : ['Temperature', 'Humidity']
+: getmeasure 1 date_begin=1520745285 Sat Mar 10 23:14:45 2018
+: getmeasure 1 date_begin=1520745247 Sat Mar 10 23:14:07 2018
+** DONE Make graphs
+CLOSED: [2018-03-11 Sun 00:02]
+
+#+BEGIN_SRC python :return plotfile :results file
+  import pandas as pd
+  from matplotlib import pyplot as plt
+  import seaborn as sns
+
+  df_inside = pd.read_csv("netatmo_station.csv", sep=';')
+  df_outside = pd.read_csv("netatmo_module.csv", sep=';')
+
+  df_inside.index = pd.to_datetime(df_inside["DateTime"])
+  df_outside.index = pd.to_datetime(df_outside["DateTime"])
+
+  plotfile = "weather-test.pdf"
+
+  fig, ax = plt.subplots(figsize=(15, 5))
+
+  ax.plot(df_inside.index.to_pydatetime(), df_inside.Temperature, label="inside")
+  ax.plot(df_outside.index.to_pydatetime(), df_outside.Temperature, label="outside")
+  ax.legend()
+  ax.set(
+      xlabel="Date",
+      ylabel="Temperature, Celsius"
+  )
+
+  fig.savefig(plotfile)
+
+
+#+END_SRC
+
+#+RESULTS:
+[[file:weather-test.pdf]]

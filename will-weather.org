@@ -1,4 +1,6 @@
+#+PROPERTY: header-args    :exports both
 * Getting my weather data from Netatmos station
+
 ** Installing Python netatmo api library
 + There are two
 + This one seems the best
@@ -47,7 +49,7 @@ CLOSED: [2018-03-11 Sun 00:02]
   df_inside.index = pd.to_datetime(df_inside["DateTime"])
   df_outside.index = pd.to_datetime(df_outside["DateTime"])
 
-  plotfile = "weather-test.pdf"
+  plotfile = "weather-test.png"
 
   fig, ax = plt.subplots(figsize=(15, 5))
 
@@ -65,4 +67,4 @@ CLOSED: [2018-03-11 Sun 00:02]
 #+END_SRC
 
 #+RESULTS:
-[[file:weather-test.pdf]]
+[[file:weather-test.png]]

@@ -33,8 +33,8 @@ Run this periodically - it should just grab the new data
 : module_id    : 02:00:00:22:b8:7e
 : module_name  : outdoor
 : data_type    : ['Temperature', 'Humidity']
-: getmeasure 1 date_begin=1520747706 Sat Mar 10 23:55:06 2018
-: getmeasure 1 date_begin=1520747657 Sat Mar 10 23:54:17 2018
+: getmeasure 1 date_begin=1520877855 Mon Mar 12 12:04:15 2018
+: getmeasure 1 date_begin=1520877828 Mon Mar 12 12:03:48 2018
 ** DONE Make graphs
 CLOSED: [2018-03-11 Sun 00:02]
 
@@ -51,7 +51,14 @@ CLOSED: [2018-03-11 Sun 00:02]
 
   plotfile = "weather-test.png"
 
-  fig, ax = plt.subplots(figsize=(15, 5))
+  fig, (ax2, ax) = plt.subplots(2, 1, sharex=True, figsize=(15, 7))
+
+  ax2.plot(df_inside.index.to_pydatetime(), df_inside.Humidity, label="inside")
+  ax2.plot(df_outside.index.to_pydatetime(), df_outside.Humidity, label="outside")
+  ax2.legend()
+  ax2.set(
+      ylabel="Humidity, Percent"
+  )
 
   ax.plot(df_inside.index.to_pydatetime(), df_inside.Temperature, label="inside")
   ax.plot(df_outside.index.to_pydatetime(), df_outside.Temperature, label="outside")
@@ -83,9 +90,22 @@ CLOSED: [2018-03-11 Sun 00:02]
 
   plotfile = "noise-test.png"
 
-  fig, ax = plt.subplots(figsize=(15, 5))
+  fig, (ax3, ax2, ax) = plt.subplots(3, 1, sharex=True, figsize=(15, 10))
 
-  ax.plot(df_inside.index.to_pydatetime(), df_inside.Noise, label="Noise")
+  ax3.fill_between(df_inside.index.to_pydatetime(), df_inside.Pressure, y2=800.0, label="Pressure")
+  ax3.legend()
+  ax3.set(
+      ylabel="Pressure, mB"
+  )
+
+  ax2.fill_between(df_inside.index.to_pydatetime(), df_inside.CO2, y2=400.0, label="CO2")
+  ax2.legend()
+  ax2.set(
+      ylabel="CO$_{2}$, ppm",
+      ylim=[380.0, None],
+  )
+
+  ax.fill_between(df_inside.index.to_pydatetime(), df_inside.Noise, y2=33.0, label="Noise")
   ax.legend()
   ax.set(
       xlabel="Date",

@@ -26,18 +26,22 @@ Run this periodically - it should just grab the new data
 #+END_SRC
 
 #+RESULTS:
-: station_name : Privada Hijos del Ejército
-: device_id    : 70:ee:50:22:ce:e6
-: module_name  : indoor
-: data_type    : ['Temperature', 'CO2', 'Humidity', 'Noise', 'Pressure']
-: module_id    : 02:00:00:22:b8:7e
-: module_name  : outdoor
-: data_type    : ['Temperature', 'Humidity']
-: getmeasure 1 date_begin=1520877855 Mon Mar 12 12:04:15 2018
-: getmeasure 1 date_begin=1520877828 Mon Mar 12 12:03:48 2018
+#+begin_example
+station_name : Privada Hijos del Ejército
+device_id    : 70:ee:50:22:ce:e6
+module_name  : indoor
+data_type    : ['Temperature', 'CO2', 'Humidity', 'Noise', 'Pressure']
+module_id    : 02:00:00:22:b8:7e
+module_name  : outdoor
+data_type    : ['Temperature', 'Humidity']
+getmeasure 1 date_begin=1521655255 Wed Mar 21 12:00:55 2018
+getmeasure 2 date_begin=1521963618 Sun Mar 25 01:40:18 2018
+getmeasure 1 date_begin=1521655236 Wed Mar 21 12:00:36 2018
+getmeasure 2 date_begin=1521964470 Sun Mar 25 01:54:30 2018
+#+end_example
 ** DONE Make graphs
 CLOSED: [2018-03-11 Sun 00:02]
-
+*** Inside and outside temperature and humidity
 #+BEGIN_SRC python :return plotfile :results file :exports both
   import pandas as pd
   from matplotlib import pyplot as plt
@@ -76,6 +80,8 @@ CLOSED: [2018-03-11 Sun 00:02]
 
 #+RESULTS:
 [[file:weather-test.png]]
+*** Pressure, CO_2, and noise 
+
 
 #+BEGIN_SRC python :return plotfile :results file :exports both
   import pandas as pd

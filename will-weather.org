@@ -126,4 +126,36 @@ CLOSED: [2018-03-11 Sun 00:02]
 
 #+RESULTS:
 [[file:noise-test.png]]
+*** Two-factor pair graphs
+#+BEGIN_SRC python :return figfile :results file
+  import numpy as np
+  import pandas as pd
+  from matplotlib import pyplot as plt
+  import seaborn as sns
 
+  sns.set_color_codes('dark')
+
+  df_inside = pd.read_csv("netatmo_station.csv", sep=';')
+  df_outside = pd.read_csv("netatmo_module.csv", sep=';')
+
+  df_inside.index = pd.to_datetime(df_inside["DateTime"])
+  df_outside.index = pd.to_datetime(df_outside["DateTime"])
+
+  figfile = "weather-inside-pairplot.png"
+
+  df_inside['CO2'] = df_inside['CO2'].where(df_inside['CO2'] > 400.0)
+  df_inside['Noise'] = df_inside['Noise'].where( df_inside['Noise'] > 35.0)
+  df_inside = df_inside.where(df_inside > 0.0)
+
+  df = df_inside.fillna(method='bfill')
+  variables = ['Temperature', 'CO2', 'Humidity', 'Noise', 'Pressure']
+  g = sns.PairGrid(df, vars=variables, size=1.5)
+  g = g.map_upper(plt.scatter, marker='.', alpha=0.05, facecolor='r', edgecolor='none')
+  g = g.map_lower(sns.kdeplot, cmap="Purples_d", n_levels=10)
+  g = g.map_diag(plt.hist)
+
+  g.savefig(figfile)
+#+END_SRC
+
+#+RESULTS:
+[[file:weather-inside-pairplot.png]]

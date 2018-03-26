@@ -26,19 +26,15 @@ Run this periodically - it should just grab the new data
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
-station_name : Privada Hijos del Ejército
-device_id    : 70:ee:50:22:ce:e6
-module_name  : indoor
-data_type    : ['Temperature', 'CO2', 'Humidity', 'Noise', 'Pressure']
-module_id    : 02:00:00:22:b8:7e
-module_name  : outdoor
-data_type    : ['Temperature', 'Humidity']
-getmeasure 1 date_begin=1521655255 Wed Mar 21 12:00:55 2018
-getmeasure 2 date_begin=1521963618 Sun Mar 25 01:40:18 2018
-getmeasure 1 date_begin=1521655236 Wed Mar 21 12:00:36 2018
-getmeasure 2 date_begin=1521964470 Sun Mar 25 01:54:30 2018
-#+end_example
+: station_name : Privada Hijos del Ejército
+: device_id    : 70:ee:50:22:ce:e6
+: module_name  : indoor
+: data_type    : ['Temperature', 'CO2', 'Humidity', 'Noise', 'Pressure']
+: module_id    : 02:00:00:22:b8:7e
+: module_name  : outdoor
+: data_type    : ['Temperature', 'Humidity']
+: getmeasure 1 date_begin=1522009858 Sun Mar 25 14:30:58 2018
+: getmeasure 1 date_begin=1522009844 Sun Mar 25 14:30:44 2018
 ** DONE Make graphs
 CLOSED: [2018-03-11 Sun 00:02]
 *** Inside and outside temperature and humidity
@@ -127,7 +123,9 @@ CLOSED: [2018-03-11 Sun 00:02]
 #+RESULTS:
 [[file:noise-test.png]]
 *** Two-factor pair graphs
-#+BEGIN_SRC python :return figfile :results file
+
+First, the inside station.  This takes about a minute to run.
+#+BEGIN_SRC python :return figfile :results file :exports both
   import numpy as np
   import pandas as pd
   from matplotlib import pyplot as plt

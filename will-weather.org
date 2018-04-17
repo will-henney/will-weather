@@ -140,6 +140,8 @@ First, the inside station.  This takes about a minute to run.
   dfi_min_day = df_inside.resample('1D').min()
   dfi_med_hr = df_inside.resample('1H').max()
 
+  dfo_med_hr = df_outside.resample('1H').max()
+
   # Restrict to afternoons, 12am to 5pm
   # pm_indices = dfi_med_hr.index.indexer_between_time('12:00', '17:00')
   # Restrict to daytime: 
@@ -150,9 +152,10 @@ First, the inside station.  This takes about a minute to run.
   # df_inside = df_inside.where(df_inside > 0.0)
   # df = df_inside.fillna(method='bfill')
 
-  df = dfi_med_hr.ix[pm_indices]
+  df = dfi_med_hr.join(dfo_med_hr, rsuffix=" out")
+  df = df.iloc[pm_indices]
   # df = dfi_min_day
-  variables = ['Temperature', 'CO2', 'Humidity', 'Noise', 'Pressure']
+  variables = ['Temperature', 'Temperature out', 'CO2', 'Humidity', 'Humidity out', 'Noise', 'Pressure']
   g = sns.PairGrid(df, vars=variables, size=1.5)
   g = g.map_upper(plt.scatter, marker='.', alpha=0.1, facecolor='r', edgecolor='none')
   g = g.map_lower(sns.kdeplot, cmap="Purples_d", n_levels=10)

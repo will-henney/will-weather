@@ -18,6 +18,9 @@
 : 1 station 70:ee:50:22:ce:e6 Privada Hijos del Ejército Morelia MX
 :    module 70:ee:50:22:ce:e6 indoor Temperature,CO2,Humidity,Noise,Pressure
 :    module 02:00:00:22:b8:7e outdoor Temperature,Humidity
+:    module 05:00:00:02:d3:6c Rain Gauge Rain
+** TODO Deal with the rain gauge
+- This shows up in the available stations, but I am not sure how to grab the data from it
 ** Download data into CSV files
 Run this periodically - it should just grab the new data
 
@@ -33,8 +36,8 @@ Run this periodically - it should just grab the new data
 : module_id    : 02:00:00:22:b8:7e
 : module_name  : outdoor
 : data_type    : ['Temperature', 'Humidity']
-: getmeasure 1 date_begin=1522009858 Sun Mar 25 14:30:58 2018
-: getmeasure 1 date_begin=1522009844 Sun Mar 25 14:30:44 2018
+: getmeasure 1 date_begin=1523979961 Tue Apr 17 10:46:01 2018
+: getmeasure 1 date_begin=1523979939 Tue Apr 17 10:45:39 2018
 ** DONE Make graphs
 CLOSED: [2018-03-11 Sun 00:02]
 *** Inside and outside temperature and humidity
@@ -43,11 +46,8 @@ CLOSED: [2018-03-11 Sun 00:02]
   from matplotlib import pyplot as plt
   import seaborn as sns
 
-  df_inside = pd.read_csv("netatmo_station.csv", sep=';')
-  df_outside = pd.read_csv("netatmo_module.csv", sep=';')
-
-  df_inside.index = pd.to_datetime(df_inside["DateTime"])
-  df_outside.index = pd.to_datetime(df_outside["DateTime"])
+  df_inside = pd.read_csv("netatmo_station.csv", sep=';', index_col=1, parse_dates=True)
+  df_outside = pd.read_csv("netatmo_module.csv", sep=';', index_col=1, parse_dates=True)
 
   plotfile = "weather-test.png"
 
@@ -84,31 +84,28 @@ CLOSED: [2018-03-11 Sun 00:02]
   from matplotlib import pyplot as plt
   import seaborn as sns
 
-  df_inside = pd.read_csv("netatmo_station.csv", sep=';')
-  df_outside = pd.read_csv("netatmo_module.csv", sep=';')
-
-  df_inside.index = pd.to_datetime(df_inside["DateTime"])
-  df_outside.index = pd.to_datetime(df_outside["DateTime"])
+  df_inside = pd.read_csv("netatmo_station.csv", sep=';', index_col=1, parse_dates=True)
+  df_outside = pd.read_csv("netatmo_module.csv", sep=';', index_col=1, parse_dates=True)
 
   plotfile = "noise-test.png"
 
   fig, (ax3, ax2, ax) = plt.subplots(3, 1, sharex=True, figsize=(15, 10))
 
   ax3.fill_between(df_inside.index.to_pydatetime(), df_inside.Pressure, y2=800.0, label="Pressure")
-  ax3.legend()
+  ax3.legend(loc="upper left")
   ax3.set(
       ylabel="Pressure, mB"
   )
 
-  ax2.fill_between(df_inside.index.to_pydatetime(), df_inside.CO2, y2=400.0, label="CO2")
-  ax2.legend()
+  ax2.fill_between(df_inside.index.to_pydatetime(), df_inside.CO2, y2=330.0, label="CO2")
+  ax2.legend(loc="upper left")
   ax2.set(
       ylabel="CO$_{2}$, ppm",
-      ylim=[380.0, None],
+      ylim=[310.0, None],
   )
 
   ax.fill_between(df_inside.index.to_pydatetime(), df_inside.Noise, y2=33.0, label="Noise")
-  ax.legend()
+  ax.legend(loc="upper left")
   ax.set(
       xlabel="Date",
       ylabel="Noise, dB"
@@ -133,25 +130,34 @@ First, the inside station.  This takes about a minute to run.
 
   sns.set_color_codes('dark')
 
-  df_inside = pd.read_csv("netatmo_station.csv", sep=';')
-  df_outside = pd.read_csv("netatmo_module.csv", sep=';')
-
-  df_inside.index = pd.to_datetime(df_inside["DateTime"])
-  df_outside.index = pd.to_datetime(df_outside["DateTime"])
+  df_inside = pd.read_csv("netatmo_station.csv", sep=';', index_col=1, parse_dates=True)
+  df_outside = pd.read_csv("netatmo_module.csv", sep=';', index_col=1, parse_dates=True)
 
   figfile = "weather-inside-pairplot.png"
 
-  df_inside['CO2'] = df_inside['CO2'].where(df_inside['CO2'] > 400.0)
-  df_inside['Noise'] = df_inside['Noise'].where( df_inside['Noise'] > 35.0)
-  df_inside = df_inside.where(df_inside > 0.0)
+  # Resample by day and by hour
+  dfi_max_day = df_inside.resample('1D').max()
+  dfi_min_day = df_inside.resample('1D').min()
+  dfi_med_hr = df_inside.resample('1H').max()
 
-  df = df_inside.fillna(method='bfill')
+  # Restrict to afternoons, 12am to 5pm
+  # pm_indices = dfi_med_hr.index.indexer_between_time('12:00', '17:00')
+  # Restrict to daytime: 
+  pm_indices = dfi_med_hr.index.indexer_between_time('07:00', '19:00')
+
+  # df_inside['CO2'] = df_inside['CO2'].where(df_inside['CO2'] > 400.0)
+  # df_inside['Noise'] = df_inside['Noise'].where( df_inside['Noise'] > 35.0)
+  # df_inside = df_inside.where(df_inside > 0.0)
+  # df = df_inside.fillna(method='bfill')
+
+  df = dfi_med_hr.ix[pm_indices]
+  # df = dfi_min_day
   variables = ['Temperature', 'CO2', 'Humidity', 'Noise', 'Pressure']
   g = sns.PairGrid(df, vars=variables, size=1.5)
-  g = g.map_upper(plt.scatter, marker='.', alpha=0.05, facecolor='r', edgecolor='none')
+  g = g.map_upper(plt.scatter, marker='.', alpha=0.1, facecolor='r', edgecolor='none')
   g = g.map_lower(sns.kdeplot, cmap="Purples_d", n_levels=10)
   g = g.map_diag(plt.hist)
-
+  g.fig.suptitle("Hourly maxima, daytime only (7AM-7PM)")
   g.savefig(figfile)
 #+END_SRC
 

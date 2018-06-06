@@ -29,15 +29,43 @@ Run this periodically - it should just grab the new data
 #+END_SRC
 
 #+RESULTS:
-: station_name : Privada Hijos del Ejército
-: device_id    : 70:ee:50:22:ce:e6
-: module_name  : indoor
-: data_type    : ['Temperature', 'CO2', 'Humidity', 'Noise', 'Pressure']
-: module_id    : 02:00:00:22:b8:7e
-: module_name  : outdoor
-: data_type    : ['Temperature', 'Humidity']
-: getmeasure 1 date_begin=1523979961 Tue Apr 17 10:46:01 2018
-: getmeasure 1 date_begin=1523979939 Tue Apr 17 10:45:39 2018
+#+begin_example
+station_name : Privada Hijos del Ejército
+device_id    : 70:ee:50:22:ce:e6
+module_name  : indoor
+data_type    : ['Temperature', 'CO2', 'Humidity', 'Noise', 'Pressure']
+module_id    : 02:00:00:22:b8:7e
+module_name  : outdoor
+data_type    : ['Temperature', 'Humidity']
+getmeasure 1 date_begin=1523983606 Tue Apr 17 11:46:46 2018
+getmeasure 2 date_begin=1524298364 Sat Apr 21 03:12:44 2018
+getmeasure 3 date_begin=1524607473 Tue Apr 24 17:04:33 2018
+getmeasure 4 date_begin=1524915096 Sat Apr 28 06:31:36 2018
+getmeasure 5 date_begin=1525223210 Tue May  1 20:06:50 2018
+getmeasure 6 date_begin=1525530510 Sat May  5 09:28:30 2018
+getmeasure 7 date_begin=1525838645 Tue May  8 23:04:05 2018
+getmeasure 8 date_begin=1526146074 Sat May 12 12:27:54 2018
+getmeasure 9 date_begin=1526453749 Wed May 16 01:55:49 2018
+getmeasure 10 date_begin=1526761600 Sat May 19 15:26:40 2018
+getmeasure 11 date_begin=1527069625 Wed May 23 05:00:25 2018
+getmeasure 12 date_begin=1527377202 Sat May 26 18:26:42 2018
+getmeasure 13 date_begin=1527684826 Wed May 30 07:53:46 2018
+getmeasure 14 date_begin=1527993039 Sat Jun  2 21:30:39 2018
+getmeasure 1 date_begin=1523983578 Tue Apr 17 11:46:18 2018
+getmeasure 2 date_begin=1524300465 Sat Apr 21 03:47:45 2018
+getmeasure 3 date_begin=1524610162 Tue Apr 24 17:49:22 2018
+getmeasure 4 date_begin=1524918082 Sat Apr 28 07:21:22 2018
+getmeasure 5 date_begin=1525228315 Tue May  1 21:31:55 2018
+getmeasure 6 date_begin=1525536486 Sat May  5 11:08:06 2018
+getmeasure 7 date_begin=1525846445 Wed May  9 01:14:05 2018
+getmeasure 8 date_begin=1526155058 Sat May 12 14:57:38 2018
+getmeasure 9 date_begin=1526462773 Wed May 16 04:26:13 2018
+getmeasure 10 date_begin=1526770591 Sat May 19 17:56:31 2018
+getmeasure 11 date_begin=1527078614 Wed May 23 07:30:14 2018
+getmeasure 12 date_begin=1527386227 Sat May 26 20:57:07 2018
+getmeasure 13 date_begin=1527694455 Wed May 30 10:34:15 2018
+getmeasure 14 date_begin=1528002582 Sun Jun  3 00:09:42 2018
+#+end_example
 ** DONE Make graphs
 CLOSED: [2018-03-11 Sun 00:02]
 *** Inside and outside temperature and humidity
@@ -138,9 +166,9 @@ First, the inside station.  This takes about a minute to run.
   # Resample by day and by hour
   dfi_max_day = df_inside.resample('1D').max()
   dfi_min_day = df_inside.resample('1D').min()
-  dfi_med_hr = df_inside.resample('1H').max()
+  dfi_med_hr = df_inside.resample('1H').mean()
 
-  dfo_med_hr = df_outside.resample('1H').max()
+  dfo_med_hr = df_outside.resample('1H').mean()
 
   # Restrict to afternoons, 12am to 5pm
   # pm_indices = dfi_med_hr.index.indexer_between_time('12:00', '17:00')
@@ -154,13 +182,14 @@ First, the inside station.  This takes about a minute to run.
 
   df = dfi_med_hr.join(dfo_med_hr, rsuffix=" out")
   df = df.iloc[pm_indices]
+  df = df.fillna(method='bfill')
   # df = dfi_min_day
   variables = ['Temperature', 'Temperature out', 'CO2', 'Humidity', 'Humidity out', 'Noise', 'Pressure']
   g = sns.PairGrid(df, vars=variables, size=1.5)
   g = g.map_upper(plt.scatter, marker='.', alpha=0.1, facecolor='r', edgecolor='none')
   g = g.map_lower(sns.kdeplot, cmap="Purples_d", n_levels=10)
   g = g.map_diag(plt.hist)
-  g.fig.suptitle("Hourly maxima, daytime only (7AM-7PM)")
+  g.fig.suptitle("Hourly means, daytime only (7AM-7PM)")
   g.savefig(figfile)
 #+END_SRC
 

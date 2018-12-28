@@ -37,39 +37,20 @@ data_type    : ['Temperature', 'CO2', 'Humidity', 'Noise', 'Pressure']
 module_id    : 02:00:00:22:b8:7e
 module_name  : outdoor
 data_type    : ['Temperature', 'Humidity']
-getmeasure 1 date_begin=1529933407 Mon Jun 25 08:30:07 2018
-getmeasure 2 date_begin=1530241158 Thu Jun 28 21:59:18 2018
-getmeasure 3 date_begin=1530548865 Mon Jul  2 11:27:45 2018
-getmeasure 4 date_begin=1530857552 Fri Jul  6 01:12:32 2018
-getmeasure 5 date_begin=1531165880 Mon Jul  9 14:51:20 2018
-getmeasure 6 date_begin=1531473668 Fri Jul 13 04:21:08 2018
-getmeasure 7 date_begin=1531783171 Mon Jul 16 18:19:31 2018
-getmeasure 8 date_begin=1532090995 Fri Jul 20 07:49:55 2018
-getmeasure 9 date_begin=1532399147 Mon Jul 23 21:25:47 2018
-getmeasure 10 date_begin=1532707148 Fri Jul 27 10:59:08 2018
-getmeasure 11 date_begin=1533015052 Tue Jul 31 00:30:52 2018
-getmeasure 12 date_begin=1533323342 Fri Aug  3 14:09:02 2018
-getmeasure 13 date_begin=1533628800 Tue Aug  7 03:00:00 2018
-getmeasure 14 date_begin=1533936513 Fri Aug 10 16:28:33 2018
-getmeasure 15 date_begin=1534245074 Tue Aug 14 06:11:14 2018
-getmeasure 16 date_begin=1534552619 Fri Aug 17 19:36:59 2018
-getmeasure 17 date_begin=1534858776 Tue Aug 21 08:39:36 2018
-getmeasure 1 date_begin=1529933378 Mon Jun 25 08:29:38 2018
-getmeasure 2 date_begin=1530262223 Fri Jun 29 03:50:23 2018
-getmeasure 3 date_begin=1530574361 Mon Jul  2 18:32:41 2018
-getmeasure 4 date_begin=1530883768 Fri Jul  6 08:29:28 2018
-getmeasure 5 date_begin=1531192437 Mon Jul  9 22:13:57 2018
-getmeasure 6 date_begin=1531501935 Fri Jul 13 12:12:15 2018
-getmeasure 7 date_begin=1531811341 Tue Jul 17 02:09:01 2018
-getmeasure 8 date_begin=1532119262 Fri Jul 20 15:41:02 2018
-getmeasure 9 date_begin=1532427439 Tue Jul 24 05:17:19 2018
-getmeasure 10 date_begin=1532735699 Fri Jul 27 18:54:59 2018
-getmeasure 11 date_begin=1533043619 Tue Jul 31 08:26:59 2018
-getmeasure 12 date_begin=1533360966 Sat Aug  4 00:36:06 2018
-getmeasure 13 date_begin=1533679992 Tue Aug  7 17:13:12 2018
-getmeasure 14 date_begin=1534014125 Sat Aug 11 14:02:05 2018
-getmeasure 15 date_begin=1534383203 Wed Aug 15 20:33:23 2018
-getmeasure 16 date_begin=1534777222 Mon Aug 20 10:00:22 2018
+getmeasure 1 date_begin=1541381991 Sun Nov  4 19:39:51 2018
+getmeasure 1 date_begin=1537165275 Mon Sep 17 01:21:15 2018
+getmeasure 2 date_begin=1537493101 Thu Sep 20 20:25:01 2018
+getmeasure 3 date_begin=1537805316 Mon Sep 24 11:08:36 2018
+getmeasure 4 date_begin=1538192428 Fri Sep 28 22:40:28 2018
+getmeasure 5 date_begin=1538503744 Tue Oct  2 13:09:04 2018
+getmeasure 6 date_begin=1538811310 Sat Oct  6 02:35:10 2018
+getmeasure 7 date_begin=1539155758 Wed Oct 10 02:15:58 2018
+getmeasure 8 date_begin=1539598045 Mon Oct 15 05:07:25 2018
+getmeasure 9 date_begin=1539906633 Thu Oct 18 18:50:33 2018
+getmeasure 10 date_begin=1540213836 Mon Oct 22 08:10:36 2018
+getmeasure 11 date_begin=1540523255 Thu Oct 25 22:07:35 2018
+getmeasure 12 date_begin=1540832816 Mon Oct 29 11:06:56 2018
+getmeasure 13 date_begin=1541144537 Fri Nov  2 01:42:17 2018
 #+end_example
 ** DONE Make graphs
 CLOSED: [2018-03-11 Sun 00:02]
@@ -86,22 +67,22 @@ CLOSED: [2018-03-11 Sun 00:02]
 
   fig, (ax2, ax) = plt.subplots(2, 1, sharex=True, figsize=(15, 7))
 
-  ax2.plot(df_inside.index.to_pydatetime(), df_inside.Humidity, label="inside")
-  ax2.plot(df_outside.index.to_pydatetime(), df_outside.Humidity, label="outside")
+  ax2.plot(df_inside.index.to_pydatetime(), df_inside.Humidity, label="inside", lw=0.2)
+  ax2.plot(df_outside.index.to_pydatetime(), df_outside.Humidity, label="outside", lw=0.2)
   ax2.legend()
   ax2.set(
       ylabel="Humidity, Percent"
   )
 
-  ax.plot(df_inside.index.to_pydatetime(), df_inside.Temperature, label="inside")
-  ax.plot(df_outside.index.to_pydatetime(), df_outside.Temperature, label="outside")
+  ax.plot(df_inside.index.to_pydatetime(), df_inside.Temperature, label="inside", lw=0.2)
+  ax.plot(df_outside.index.to_pydatetime(), df_outside.Temperature, label="outside", lw=0.2)
   ax.legend()
   ax.set(
       xlabel="Date",
       ylabel="Temperature, Celsius"
   )
 
-  fig.savefig(plotfile)
+  fig.savefig(plotfile, dpi=600)
   fig.savefig(plotfile.replace(".png", ".pdf"))
 
 

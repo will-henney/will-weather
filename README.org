@@ -1,1 +1,228 @@
-will-weather.org
+#+PROPERTY: header-args    :exports both
+* Getting my weather data from Netatmos station
+
+** Installing Python netatmo api library
++ There are two
++ This one seems the best
+  + https://github.com/rene-d/netatmo
+  + [[file:~/Source/netatmo/]]
+** Setting credentials
++ These are in my [[file:~/.netatmorc]]
++ Passwords and keys are also stored in 1Password vault
+** Available stations
+#+BEGIN_SRC sh :results verbatim :exports both
+~/Source/netatmo/netatmo.py list
+#+END_SRC
+
+#+RESULTS:
+: 1 station 70:ee:50:22:ce:e6 Privada Hijos del Ejército Morelia MX
+:    module 70:ee:50:22:ce:e6 indoor Temperature,CO2,Humidity,Noise,Pressure
+:    module 02:00:00:22:b8:7e outdoor Temperature,Humidity
+:    module 05:00:00:02:d3:6c Rain Gauge Rain
+** TODO Deal with the rain gauge
+- This shows up in the available stations, but I am not sure how to grab the data from it
+** Download data into CSV files
+Run this periodically - it should just grab the new data
+
+#+BEGIN_SRC sh :results verbatim :exports both
+~/Source/netatmo/netatmo.py fetch
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+station_name : Privada Hijos del Ejército
+device_id    : 70:ee:50:22:ce:e6
+module_name  : indoor
+data_type    : ['Temperature', 'CO2', 'Humidity', 'Noise', 'Pressure']
+module_id    : 02:00:00:22:b8:7e
+module_name  : outdoor
+data_type    : ['Temperature', 'Humidity']
+getmeasure 1 date_begin=1541382595 Sun Nov  4 19:49:55 2018
+getmeasure 2 date_begin=1541690275 Thu Nov  8 09:17:55 2018
+getmeasure 3 date_begin=1541997966 Sun Nov 11 22:46:06 2018
+getmeasure 4 date_begin=1542306926 Thu Nov 15 12:35:26 2018
+getmeasure 5 date_begin=1542614601 Mon Nov 19 02:03:21 2018
+getmeasure 6 date_begin=1542923567 Thu Nov 22 15:52:47 2018
+getmeasure 7 date_begin=1543232622 Mon Nov 26 05:43:42 2018
+getmeasure 8 date_begin=1543544848 Thu Nov 29 20:27:28 2018
+getmeasure 9 date_begin=1543863145 Mon Dec  3 12:52:25 2018
+getmeasure 10 date_begin=1544181320 Fri Dec  7 05:15:20 2018
+getmeasure 11 date_begin=1544596648 Wed Dec 12 00:37:28 2018
+getmeasure 12 date_begin=1544924806 Sat Dec 15 19:46:46 2018
+getmeasure 13 date_begin=1545251548 Wed Dec 19 14:32:28 2018
+getmeasure 14 date_begin=1545586595 Sun Dec 23 11:36:35 2018
+getmeasure 15 date_begin=1545932774 Thu Dec 27 11:46:14 2018
+getmeasure 1 date_begin=1541382450 Sun Nov  4 19:47:30 2018
+getmeasure 2 date_begin=1541748816 Fri Nov  9 01:33:36 2018
+getmeasure 3 date_begin=1542085383 Mon Nov 12 23:03:03 2018
+getmeasure 4 date_begin=1542396334 Fri Nov 16 13:25:34 2018
+getmeasure 5 date_begin=1542705152 Tue Nov 20 03:12:32 2018
+getmeasure 6 date_begin=1543015020 Fri Nov 23 17:17:00 2018
+getmeasure 7 date_begin=1543324530 Tue Nov 27 07:15:30 2018
+getmeasure 8 date_begin=1543633834 Fri Nov 30 21:10:34 2018
+getmeasure 9 date_begin=1543943196 Tue Dec  4 11:06:36 2018
+getmeasure 10 date_begin=1544252399 Sat Dec  8 00:59:59 2018
+getmeasure 11 date_begin=1544652534 Wed Dec 12 16:08:54 2018
+getmeasure 12 date_begin=1544965479 Sun Dec 16 07:04:39 2018
+getmeasure 13 date_begin=1545277309 Wed Dec 19 21:41:49 2018
+getmeasure 14 date_begin=1545597142 Sun Dec 23 14:32:22 2018
+getmeasure 15 date_begin=1545911830 Thu Dec 27 05:57:10 2018
+#+end_example
+** DONE Make graphs
+CLOSED: [2018-03-11 Sun 00:02]
+*** Inside and outside temperature and humidity
+#+BEGIN_SRC python :return plotfile :results file :exports both
+  import pandas as pd
+  from matplotlib import pyplot as plt
+  import seaborn as sns
+
+  df_inside = pd.read_csv("netatmo_station.csv", sep=';', index_col=1, parse_dates=True)
+  df_outside = pd.read_csv("netatmo_module.csv", sep=';', index_col=1, parse_dates=True)
+
+  plotfile = "weather-test.png"
+
+  fig, (ax2, ax) = plt.subplots(2, 1, sharex=True, figsize=(15, 7))
+
+  ax2.plot(df_inside.index.to_pydatetime(), df_inside.Humidity, lw=0.3, label="inside")
+  ax2.plot(df_outside.index.to_pydatetime(), df_outside.Humidity, lw=0.3, label="outside")
+  ax2.legend()
+  ax2.set(
+      ylabel="Humidity, Percent"
+  )
+
+  ax.plot(df_inside.index.to_pydatetime(), df_inside.Temperature, lw=0.3, label="inside")
+  ax.plot(df_outside.index.to_pydatetime(), df_outside.Temperature, lw=0.3, label="outside")
+  ax.legend()
+  ax.set(
+      xlabel="Date",
+      ylabel="Temperature, Celsius"
+  )
+
+  fig.savefig(plotfile)
+  fig.savefig(plotfile.replace(".png", ".pdf"))
+
+
+#+END_SRC
+
+#+RESULTS:
+[[file:weather-test.png]]
+
+
+PDF version for higher resolution
+#+BEGIN_SRC sh :results silent
+open weather-test.pdf
+#+END_SRC
+
+
+*** Pressure, CO_2, and noise 
+
+
+#+BEGIN_SRC python :return plotfile :results file :exports both
+  import pandas as pd
+  from matplotlib import pyplot as plt
+  import seaborn as sns
+
+  df_inside = pd.read_csv("netatmo_station.csv", sep=';', index_col=1, parse_dates=True)
+  df_outside = pd.read_csv("netatmo_module.csv", sep=';', index_col=1, parse_dates=True)
+
+  plotfile = "noise-test.png"
+
+  fig, (ax3, ax2, ax) = plt.subplots(3, 1, sharex=True, figsize=(15, 10))
+
+  ax3.fill_between(df_inside.index.to_pydatetime(), df_inside.Pressure, y2=800.0, label="Pressure")
+  ax3.legend(loc="upper left")
+  ax3.set(
+      ylabel="Pressure, mB"
+  )
+
+  ax2.fill_between(df_inside.index.to_pydatetime(), df_inside.CO2, y2=330.0, label="CO2")
+  ax2.legend(loc="upper left")
+  ax2.set(
+      ylabel="CO$_{2}$, ppm",
+      ylim=[310.0, None],
+  )
+
+  ax.fill_between(df_inside.index.to_pydatetime(), df_inside.Noise, y2=33.0, label="Noise")
+  ax.legend(loc="upper left")
+  ax.set(
+      xlabel="Date",
+      ylabel="Noise, dB"
+  )
+
+  fig.savefig(plotfile)
+  fig.savefig(plotfile.replace(".png", ".pdf"))
+
+
+#+END_SRC
+
+#+RESULTS:
+[[file:noise-test.png]]
+
+PDF version for higher resolution
+#+BEGIN_SRC sh :results silent
+open noise-test.pdf
+#+END_SRC
+
+
+*** Two-factor pair graphs
+
+Correlations between selected measurements.  This takes about a 20 seconds to run.
+#+BEGIN_SRC python :return figfile :results file :exports both
+  import numpy as np
+  import pandas as pd
+  from matplotlib import pyplot as plt
+  import seaborn as sns
+
+  sns.set_color_codes('dark')
+
+  df_inside = pd.read_csv("netatmo_station.csv", sep=';', index_col=1, parse_dates=True)
+  df_outside = pd.read_csv("netatmo_module.csv", sep=';', index_col=1, parse_dates=True)
+
+  figfile = "weather-pairplot.png"
+
+  # Resample by day and by hour
+  dfi_max_day = df_inside.resample('1D').max()
+  dfi_min_day = df_inside.resample('1D').min()
+  dfi_med_hr = df_inside.resample('1H').mean()
+
+  dfo_med_hr = df_outside.resample('1H').mean()
+
+  # Restrict to afternoons, 12am to 5pm
+  # pm_indices = dfi_med_hr.index.indexer_between_time('12:00', '17:00')
+
+  # Restrict to daytime: 
+  day_indices = dfi_med_hr.index.indexer_between_time('07:00', '19:00')
+
+  df = dfi_med_hr.join(dfo_med_hr, rsuffix=" out")
+  df = df.iloc[day_indices]
+  df = df.fillna(method='bfill')
+  # df = dfi_min_day
+  variables = ['Temperature', 'Temperature out', 'CO2', 'Humidity', 'Humidity out', 'Noise', 'Pressure']
+  g = sns.PairGrid(df, vars=variables, size=1.5)
+  g = g.map_upper(plt.scatter, marker='.', alpha=0.1, facecolor='r', edgecolor='none')
+  g = g.map_lower(sns.kdeplot, cmap="Purples_d", n_levels=10)
+  g = g.map_diag(plt.hist)
+  g.fig.suptitle("Hourly means, daytime only (7AM-7PM)")
+  g.savefig(figfile)
+
+
+  # Repeat for night time
+  night_indices = dfi_med_hr.index.indexer_between_time('19:00', '07:00')
+  df = dfi_med_hr.join(dfo_med_hr, rsuffix=" out")
+  df = df.iloc[night_indices]
+  df = df.fillna(method='bfill')
+  variables = ['Temperature', 'Temperature out', 'CO2', 'Humidity', 'Humidity out', 'Noise', 'Pressure']
+  g = sns.PairGrid(df, vars=variables, size=1.5)
+  g = g.map_upper(plt.scatter, marker='.', alpha=0.1, facecolor='r', edgecolor='none')
+  g = g.map_lower(sns.kdeplot, cmap="Purples_d", n_levels=10)
+  g = g.map_diag(plt.hist)
+  g.fig.suptitle("Hourly means, nighttime only (7PM-7AM)")
+  g.savefig(figfile.replace(".png", "-night.png"))
+
+#+END_SRC
+
+#+RESULTS:
+[[file:weather-pairplot.png]]
+
+Also, the night-time version:
+[[file:weather-pairplot-night.png]]

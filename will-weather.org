@@ -37,20 +37,28 @@ data_type    : ['Temperature', 'CO2', 'Humidity', 'Noise', 'Pressure']
 module_id    : 02:00:00:22:b8:7e
 module_name  : outdoor
 data_type    : ['Temperature', 'Humidity']
-getmeasure 1 date_begin=1541381991 Sun Nov  4 19:39:51 2018
-getmeasure 1 date_begin=1537165275 Mon Sep 17 01:21:15 2018
-getmeasure 2 date_begin=1537493101 Thu Sep 20 20:25:01 2018
-getmeasure 3 date_begin=1537805316 Mon Sep 24 11:08:36 2018
-getmeasure 4 date_begin=1538192428 Fri Sep 28 22:40:28 2018
-getmeasure 5 date_begin=1538503744 Tue Oct  2 13:09:04 2018
-getmeasure 6 date_begin=1538811310 Sat Oct  6 02:35:10 2018
-getmeasure 7 date_begin=1539155758 Wed Oct 10 02:15:58 2018
-getmeasure 8 date_begin=1539598045 Mon Oct 15 05:07:25 2018
-getmeasure 9 date_begin=1539906633 Thu Oct 18 18:50:33 2018
-getmeasure 10 date_begin=1540213836 Mon Oct 22 08:10:36 2018
-getmeasure 11 date_begin=1540523255 Thu Oct 25 22:07:35 2018
-getmeasure 12 date_begin=1540832816 Mon Oct 29 11:06:56 2018
-getmeasure 13 date_begin=1541144537 Fri Nov  2 01:42:17 2018
+getmeasure 1 date_begin=1546015244 Fri Dec 28 10:40:44 2018
+getmeasure 2 date_begin=1546366902 Tue Jan  1 12:21:42 2019
+getmeasure 3 date_begin=1546705202 Sat Jan  5 10:20:02 2019
+getmeasure 4 date_begin=1547011060 Tue Jan  8 23:17:40 2019
+getmeasure 5 date_begin=1547320350 Sat Jan 12 13:12:30 2019
+getmeasure 6 date_begin=1547629826 Wed Jan 16 03:10:26 2019
+getmeasure 7 date_begin=1547937799 Sat Jan 19 16:43:19 2019
+getmeasure 8 date_begin=1548246901 Wed Jan 23 06:35:01 2019
+getmeasure 9 date_begin=1548555934 Sat Jan 26 20:25:34 2019
+getmeasure 10 date_begin=1548865062 Wed Jan 30 10:17:42 2019
+getmeasure 11 date_begin=1549174848 Sun Feb  3 00:20:48 2019
+getmeasure 1 date_begin=1546015495 Fri Dec 28 10:44:55 2018
+getmeasure 2 date_begin=1546330186 Tue Jan  1 02:09:46 2019
+getmeasure 3 date_begin=1546647181 Fri Jan  4 18:13:01 2019
+getmeasure 4 date_begin=1546955345 Tue Jan  8 07:49:05 2019
+getmeasure 5 date_begin=1547265053 Fri Jan 11 21:50:53 2019
+getmeasure 6 date_begin=1547574902 Tue Jan 15 11:55:02 2019
+getmeasure 7 date_begin=1547899549 Sat Jan 19 06:05:49 2019
+getmeasure 8 date_begin=1548237473 Wed Jan 23 03:57:53 2019
+getmeasure 9 date_begin=1548556531 Sat Jan 26 20:35:31 2019
+getmeasure 10 date_begin=1548867753 Wed Jan 30 11:02:33 2019
+getmeasure 11 date_begin=1549177524 Sun Feb  3 01:05:24 2019
 #+end_example
 ** DONE Make graphs
 CLOSED: [2018-03-11 Sun 00:02]
@@ -125,7 +133,7 @@ CLOSED: [2018-03-11 Sun 00:02]
       ylabel="Noise, dB"
   )
 
-  fig.savefig(plotfile)
+  fig.savefig(plotfile, dpi=600)
   fig.savefig(plotfile.replace(".png", ".pdf"))
 
 

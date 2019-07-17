@@ -37,36 +37,28 @@ data_type    : ['Temperature', 'CO2', 'Humidity', 'Noise', 'Pressure']
 module_id    : 02:00:00:22:b8:7e
 module_name  : outdoor
 data_type    : ['Temperature', 'Humidity']
-getmeasure 1 date_begin=1541382595 Sun Nov  4 19:49:55 2018
-getmeasure 2 date_begin=1541690275 Thu Nov  8 09:17:55 2018
-getmeasure 3 date_begin=1541997966 Sun Nov 11 22:46:06 2018
-getmeasure 4 date_begin=1542306926 Thu Nov 15 12:35:26 2018
-getmeasure 5 date_begin=1542614601 Mon Nov 19 02:03:21 2018
-getmeasure 6 date_begin=1542923567 Thu Nov 22 15:52:47 2018
-getmeasure 7 date_begin=1543232622 Mon Nov 26 05:43:42 2018
-getmeasure 8 date_begin=1543544848 Thu Nov 29 20:27:28 2018
-getmeasure 9 date_begin=1543863145 Mon Dec  3 12:52:25 2018
-getmeasure 10 date_begin=1544181320 Fri Dec  7 05:15:20 2018
-getmeasure 11 date_begin=1544596648 Wed Dec 12 00:37:28 2018
-getmeasure 12 date_begin=1544924806 Sat Dec 15 19:46:46 2018
-getmeasure 13 date_begin=1545251548 Wed Dec 19 14:32:28 2018
-getmeasure 14 date_begin=1545586595 Sun Dec 23 11:36:35 2018
-getmeasure 15 date_begin=1545932774 Thu Dec 27 11:46:14 2018
-getmeasure 1 date_begin=1541382450 Sun Nov  4 19:47:30 2018
-getmeasure 2 date_begin=1541748816 Fri Nov  9 01:33:36 2018
-getmeasure 3 date_begin=1542085383 Mon Nov 12 23:03:03 2018
-getmeasure 4 date_begin=1542396334 Fri Nov 16 13:25:34 2018
-getmeasure 5 date_begin=1542705152 Tue Nov 20 03:12:32 2018
-getmeasure 6 date_begin=1543015020 Fri Nov 23 17:17:00 2018
-getmeasure 7 date_begin=1543324530 Tue Nov 27 07:15:30 2018
-getmeasure 8 date_begin=1543633834 Fri Nov 30 21:10:34 2018
-getmeasure 9 date_begin=1543943196 Tue Dec  4 11:06:36 2018
-getmeasure 10 date_begin=1544252399 Sat Dec  8 00:59:59 2018
-getmeasure 11 date_begin=1544652534 Wed Dec 12 16:08:54 2018
-getmeasure 12 date_begin=1544965479 Sun Dec 16 07:04:39 2018
-getmeasure 13 date_begin=1545277309 Wed Dec 19 21:41:49 2018
-getmeasure 14 date_begin=1545597142 Sun Dec 23 14:32:22 2018
-getmeasure 15 date_begin=1545911830 Thu Dec 27 05:57:10 2018
+getmeasure 1 date_begin=1546015244 Fri Dec 28 10:40:44 2018
+getmeasure 2 date_begin=1546366902 Tue Jan  1 12:21:42 2019
+getmeasure 3 date_begin=1546705202 Sat Jan  5 10:20:02 2019
+getmeasure 4 date_begin=1547011060 Tue Jan  8 23:17:40 2019
+getmeasure 5 date_begin=1547320350 Sat Jan 12 13:12:30 2019
+getmeasure 6 date_begin=1547629826 Wed Jan 16 03:10:26 2019
+getmeasure 7 date_begin=1547937799 Sat Jan 19 16:43:19 2019
+getmeasure 8 date_begin=1548246901 Wed Jan 23 06:35:01 2019
+getmeasure 9 date_begin=1548555934 Sat Jan 26 20:25:34 2019
+getmeasure 10 date_begin=1548865062 Wed Jan 30 10:17:42 2019
+getmeasure 11 date_begin=1549174848 Sun Feb  3 00:20:48 2019
+getmeasure 1 date_begin=1546015495 Fri Dec 28 10:44:55 2018
+getmeasure 2 date_begin=1546330186 Tue Jan  1 02:09:46 2019
+getmeasure 3 date_begin=1546647181 Fri Jan  4 18:13:01 2019
+getmeasure 4 date_begin=1546955345 Tue Jan  8 07:49:05 2019
+getmeasure 5 date_begin=1547265053 Fri Jan 11 21:50:53 2019
+getmeasure 6 date_begin=1547574902 Tue Jan 15 11:55:02 2019
+getmeasure 7 date_begin=1547899549 Sat Jan 19 06:05:49 2019
+getmeasure 8 date_begin=1548237473 Wed Jan 23 03:57:53 2019
+getmeasure 9 date_begin=1548556531 Sat Jan 26 20:35:31 2019
+getmeasure 10 date_begin=1548867753 Wed Jan 30 11:02:33 2019
+getmeasure 11 date_begin=1549177524 Sun Feb  3 01:05:24 2019
 #+end_example
 ** DONE Make graphs
 CLOSED: [2018-03-11 Sun 00:02]
@@ -83,22 +75,22 @@ CLOSED: [2018-03-11 Sun 00:02]
 
   fig, (ax2, ax) = plt.subplots(2, 1, sharex=True, figsize=(15, 7))
 
-  ax2.plot(df_inside.index.to_pydatetime(), df_inside.Humidity, lw=0.3, label="inside")
-  ax2.plot(df_outside.index.to_pydatetime(), df_outside.Humidity, lw=0.3, label="outside")
+  ax2.plot(df_inside.index.to_pydatetime(), df_inside.Humidity, label="inside", lw=0.2)
+  ax2.plot(df_outside.index.to_pydatetime(), df_outside.Humidity, label="outside", lw=0.2)
   ax2.legend()
   ax2.set(
       ylabel="Humidity, Percent"
   )
 
-  ax.plot(df_inside.index.to_pydatetime(), df_inside.Temperature, lw=0.3, label="inside")
-  ax.plot(df_outside.index.to_pydatetime(), df_outside.Temperature, lw=0.3, label="outside")
+  ax.plot(df_inside.index.to_pydatetime(), df_inside.Temperature, label="inside", lw=0.2)
+  ax.plot(df_outside.index.to_pydatetime(), df_outside.Temperature, label="outside", lw=0.2)
   ax.legend()
   ax.set(
       xlabel="Date",
       ylabel="Temperature, Celsius"
   )
 
-  fig.savefig(plotfile)
+  fig.savefig(plotfile, dpi=600)
   fig.savefig(plotfile.replace(".png", ".pdf"))
 
 
@@ -106,14 +98,6 @@ CLOSED: [2018-03-11 Sun 00:02]
 
 #+RESULTS:
 [[file:weather-test.png]]
-
-
-PDF version for higher resolution
-#+BEGIN_SRC sh :results silent
-open weather-test.pdf
-#+END_SRC
-
-
 *** Pressure, CO_2, and noise 
 
 
@@ -149,7 +133,7 @@ open weather-test.pdf
       ylabel="Noise, dB"
   )
 
-  fig.savefig(plotfile)
+  fig.savefig(plotfile, dpi=600)
   fig.savefig(plotfile.replace(".png", ".pdf"))
 
 
@@ -157,13 +141,6 @@ open weather-test.pdf
 
 #+RESULTS:
 [[file:noise-test.png]]
-
-PDF version for higher resolution
-#+BEGIN_SRC sh :results silent
-open noise-test.pdf
-#+END_SRC
-
-
 *** Two-factor pair graphs
 
 Correlations between selected measurements.  This takes about a 20 seconds to run.

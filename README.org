@@ -21,8 +21,112 @@
 :    module 05:00:00:02:d3:6c Rain Gauge Rain
 ** TODO Deal with the rain gauge
 - This shows up in the available stations, but I am not sure how to grab the data from it
+
+#+BEGIN_SRC sh :results verbatim :exports both
+~/Source/netatmo/netatmo.py dump
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+station Privada Hijos del Ejército
+          date_setup : 1520632818 - 2018-03-09 16:00:18
+          last_setup : 1520632818 - 2018-03-09 16:00:18
+        last_upgrade : 1520632820 - 2018-03-09 16:00:20
+               place : Morelia MX / alt 1920
+         wifi_status : 61
+   last_status_store : 1563407025 - 2019-07-17 18:43:45
+module indoor - Main device
+                 _id : 70:ee:50:22:ce:e6
+           data_type : ['Temperature', 'CO2', 'Humidity', 'Noise', 'Pressure']
+    AbsolutePressure > 807.5
+       date_max_temp > 1563385850 - 2019-07-17 12:50:50
+       date_min_temp > 1563372817 - 2019-07-17 09:13:37
+            max_temp > 23.3
+            min_temp > 20.1
+      pressure_trend > down
+          temp_trend > down
+            time_utc > 1563407011 - 2019-07-17 18:43:31
+                 CO2 = 497
+            Humidity = 63
+               Noise = 36
+            Pressure = 1019.1
+         Temperature = 22.4
+module outdoor - Outdoor
+                 _id : 02:00:00:22:b8:7e
+           data_type : ['Temperature', 'Humidity']
+          last_setup : 1520632819 - 2018-03-09 16:00:19
+            firmware : 44
+           rf_status : 73 (90=low, 60=highest)
+     battery_percent : 65 %
+        last_message : 1563407021 - 2018-03-09 16:00:19
+           last_seen : 1563407015 - 2018-03-09 16:00:19
+       date_max_temp > 1563385207 - 2019-07-17 12:40:07
+       date_min_temp > 1563366743 - 2019-07-17 07:32:23
+            max_temp > 26.7
+            min_temp > 17.3
+          temp_trend > down
+            time_utc > 1563406964 - 2019-07-17 18:42:44
+            Humidity = 73
+         Temperature = 20.5
+module Rain Gauge - Rain Gauge
+                 _id : 05:00:00:02:d3:6c
+           data_type : ['Rain']
+          last_setup : 1523057640 - 2018-04-06 18:34:00
+            firmware : 8
+           rf_status : 72 (90=low, 60=highest)
+     battery_percent : 78 %
+        last_message : 1563407021 - 2018-04-06 18:34:00
+           last_seen : 1563407021 - 2018-04-06 18:34:00
+          sum_rain_1 > 0.30300000000000005
+         sum_rain_24 > 19.7
+            time_utc > 1563407009 - 2019-07-17 18:43:29
+                Rain = 0.303
+{'body': {'1563405322': [22.7, 507, 62, 36, 1018.7], '1563405622': [22.6, 499, 62, 36, 1019], '1563405922': [22.6, 501, 62, 35, 1019.1], '1563406226': [22.5, 507, 63, 36, 1019.2], '1563406527': [22.5, 503, 62, 35, 1019.2], '1563406831': [22.4, 498, 62, 35, 1019.1], '1563407011': [22.4, 497, 63, 36, 1019.1]}, 'status': 'ok', 'time_exec': 0.030382871627807617, 'time_server': 1563407073}
+{'body': {'1563405272': [21.2, 72], '1563405579': [21, 71], '1563405887': [20.8, 71], '1563406195': [20.8, 71], '1563406502': [20.6, 70], '1563406810': [20.5, 72], '1563406964': [20.5, 73]}, 'status': 'ok', 'time_exec': 0.018594026565551758, 'time_server': 1563407074}
+{'body': {'1563405317': [0], '1563405611': [0], '1563405919': [0], '1563406227': [0], '1563406521': [0], '1563406829': [0], '1563407009': [0.303]}, 'status': 'ok', 'time_exec': 0.031126976013183594, 'time_server': 1563407074}
+#+end_example
+
+So the ~dump~ command works fine.  We just need to work out how to change the ~fetch~ command. 
+
+This implementation is just copied from ~netatmo.fetch~, but changing the necessary parameters to fetch data from the rain gauge. 
+
+#+begin_src python :tangle netatmo-fetch-rain.py
+  import sys
+  sys.path.append("/Users/will/Source/netatmo")
+  import netatmo
+
+  def fetch_rain():
+      """
+          retrieve measures from rain station and append them to csv files
+      """
+      ws = netatmo.WeatherStation(netatmo.DEFAULT_RC_FILE)
+      if not ws.get_data():
+          return
+      station = ws.station_by_name()
+      rainmodule = station['modules'][1]
+      print("module_id    : {}".format(rainmodule['_id']))
+      print("module_name  : {}".format(rainmodule['module_name']))
+      print("data_type    : {}".format(rainmodule['data_type']))
+
+      data_type = ["Rain"]
+      netatmo.dl_csv(ws, "netatmo_rain.csv",
+                     station['_id'], rainmodule['_id'],
+                     data_type, rainmodule['dashboard_data']['time_utc'])
+
+
+  if __name__ == "__main__":
+      fetch_rain()
+
+#+end_src
+
+#+begin_src sh :results verbatim :exports both
+python netatmo-fetch-rain.py
+#+end_src
+
+
+
 ** Download data into CSV files
-Run this periodically - it should just grab the new data
+Run this periodically - it should just grab the new data (also run the rain gauge version above)
 
 #+BEGIN_SRC sh :results verbatim :exports both
 ~/Source/netatmo/netatmo.py fetch
@@ -37,28 +141,96 @@ data_type    : ['Temperature', 'CO2', 'Humidity', 'Noise', 'Pressure']
 module_id    : 02:00:00:22:b8:7e
 module_name  : outdoor
 data_type    : ['Temperature', 'Humidity']
-getmeasure 1 date_begin=1546015244 Fri Dec 28 10:40:44 2018
-getmeasure 2 date_begin=1546366902 Tue Jan  1 12:21:42 2019
-getmeasure 3 date_begin=1546705202 Sat Jan  5 10:20:02 2019
-getmeasure 4 date_begin=1547011060 Tue Jan  8 23:17:40 2019
-getmeasure 5 date_begin=1547320350 Sat Jan 12 13:12:30 2019
-getmeasure 6 date_begin=1547629826 Wed Jan 16 03:10:26 2019
-getmeasure 7 date_begin=1547937799 Sat Jan 19 16:43:19 2019
-getmeasure 8 date_begin=1548246901 Wed Jan 23 06:35:01 2019
-getmeasure 9 date_begin=1548555934 Sat Jan 26 20:25:34 2019
-getmeasure 10 date_begin=1548865062 Wed Jan 30 10:17:42 2019
-getmeasure 11 date_begin=1549174848 Sun Feb  3 00:20:48 2019
-getmeasure 1 date_begin=1546015495 Fri Dec 28 10:44:55 2018
-getmeasure 2 date_begin=1546330186 Tue Jan  1 02:09:46 2019
-getmeasure 3 date_begin=1546647181 Fri Jan  4 18:13:01 2019
-getmeasure 4 date_begin=1546955345 Tue Jan  8 07:49:05 2019
-getmeasure 5 date_begin=1547265053 Fri Jan 11 21:50:53 2019
-getmeasure 6 date_begin=1547574902 Tue Jan 15 11:55:02 2019
-getmeasure 7 date_begin=1547899549 Sat Jan 19 06:05:49 2019
-getmeasure 8 date_begin=1548237473 Wed Jan 23 03:57:53 2019
-getmeasure 9 date_begin=1548556531 Sat Jan 26 20:35:31 2019
-getmeasure 10 date_begin=1548867753 Wed Jan 30 11:02:33 2019
-getmeasure 11 date_begin=1549177524 Sun Feb  3 01:05:24 2019
+getmeasure 1 date_begin=1549233297 Sun Feb  3 16:34:57 2019
+getmeasure 2 date_begin=1549542282 Thu Feb  7 06:24:42 2019
+getmeasure 3 date_begin=1549850864 Sun Feb 10 20:07:44 2019
+getmeasure 4 date_begin=1550159728 Thu Feb 14 09:55:28 2019
+getmeasure 5 date_begin=1550468002 Sun Feb 17 23:33:22 2019
+getmeasure 6 date_begin=1550776309 Thu Feb 21 13:11:49 2019
+getmeasure 7 date_begin=1551085156 Mon Feb 25 02:59:16 2019
+getmeasure 8 date_begin=1551393597 Thu Feb 28 16:39:57 2019
+getmeasure 9 date_begin=1551702087 Mon Mar  4 06:21:27 2019
+getmeasure 10 date_begin=1552027097 Fri Mar  8 00:38:17 2019
+getmeasure 11 date_begin=1552335304 Mon Mar 11 14:15:04 2019
+getmeasure 12 date_begin=1552643671 Fri Mar 15 03:54:31 2019
+getmeasure 13 date_begin=1552952274 Mon Mar 18 17:37:54 2019
+getmeasure 14 date_begin=1553260929 Fri Mar 22 07:22:09 2019
+getmeasure 15 date_begin=1553569392 Mon Mar 25 21:03:12 2019
+getmeasure 16 date_begin=1553877844 Fri Mar 29 10:44:04 2019
+getmeasure 17 date_begin=1554186352 Tue Apr  2 00:25:52 2019
+getmeasure 18 date_begin=1554494865 Fri Apr  5 14:07:45 2019
+getmeasure 19 date_begin=1554803029 Tue Apr  9 04:43:49 2019
+getmeasure 20 date_begin=1555111540 Fri Apr 12 18:25:40 2019
+getmeasure 21 date_begin=1555419518 Tue Apr 16 07:58:38 2019
+getmeasure 22 date_begin=1555727213 Fri Apr 19 21:26:53 2019
+getmeasure 23 date_begin=1556035505 Tue Apr 23 11:05:05 2019
+getmeasure 24 date_begin=1556343212 Sat Apr 27 00:33:32 2019
+getmeasure 25 date_begin=1556651282 Tue Apr 30 14:08:02 2019
+getmeasure 26 date_begin=1556959351 Sat May  4 03:42:31 2019
+getmeasure 27 date_begin=1557267616 Tue May  7 17:20:16 2019
+getmeasure 28 date_begin=1557575884 Sat May 11 06:58:04 2019
+getmeasure 29 date_begin=1557883848 Tue May 14 20:30:48 2019
+getmeasure 30 date_begin=1558191492 Sat May 18 09:58:12 2019
+getmeasure 31 date_begin=1558500005 Tue May 21 23:40:05 2019
+getmeasure 32 date_begin=1558807763 Sat May 25 13:09:23 2019
+getmeasure 33 date_begin=1559114380 Wed May 29 02:19:40 2019
+getmeasure 34 date_begin=1559443903 Sat Jun  1 21:51:43 2019
+getmeasure 35 date_begin=1559751566 Wed Jun  5 11:19:26 2019
+getmeasure 36 date_begin=1560059115 Sun Jun  9 00:45:15 2019
+getmeasure 37 date_begin=1560367248 Wed Jun 12 14:20:48 2019
+getmeasure 38 date_begin=1560675598 Sun Jun 16 03:59:58 2019
+getmeasure 39 date_begin=1560983724 Wed Jun 19 17:35:24 2019
+getmeasure 40 date_begin=1561291826 Sun Jun 23 07:10:26 2019
+getmeasure 41 date_begin=1561599968 Wed Jun 26 20:46:08 2019
+getmeasure 42 date_begin=1561907926 Sun Jun 30 10:18:46 2019
+getmeasure 43 date_begin=1562613086 Mon Jul  8 14:11:26 2019
+getmeasure 44 date_begin=1562921051 Fri Jul 12 03:44:11 2019
+getmeasure 45 date_begin=1563228648 Mon Jul 15 17:10:48 2019
+getmeasure 1 date_begin=1549233253 Sun Feb  3 16:34:13 2019
+getmeasure 2 date_begin=1549544058 Thu Feb  7 06:54:18 2019
+getmeasure 3 date_begin=1549852644 Sun Feb 10 20:37:24 2019
+getmeasure 4 date_begin=1550161538 Thu Feb 14 10:25:38 2019
+getmeasure 5 date_begin=1550472214 Mon Feb 18 00:43:34 2019
+getmeasure 6 date_begin=1550780494 Thu Feb 21 14:21:34 2019
+getmeasure 7 date_begin=1551094188 Mon Feb 25 05:29:48 2019
+getmeasure 8 date_begin=1551406216 Thu Feb 28 20:10:16 2019
+getmeasure 9 date_begin=1551715052 Mon Mar  4 09:57:32 2019
+getmeasure 10 date_begin=1552040353 Fri Mar  8 04:19:13 2019
+getmeasure 11 date_begin=1552348741 Mon Mar 11 17:59:01 2019
+getmeasure 12 date_begin=1552657174 Fri Mar 15 07:39:34 2019
+getmeasure 13 date_begin=1552965812 Mon Mar 18 21:23:32 2019
+getmeasure 14 date_begin=1553274520 Fri Mar 22 11:08:40 2019
+getmeasure 15 date_begin=1553584407 Tue Mar 26 01:13:27 2019
+getmeasure 16 date_begin=1553894391 Fri Mar 29 15:19:51 2019
+getmeasure 17 date_begin=1554202925 Tue Apr  2 05:02:05 2019
+getmeasure 18 date_begin=1554512589 Fri Apr  5 19:03:09 2019
+getmeasure 19 date_begin=1554821176 Tue Apr  9 09:46:16 2019
+getmeasure 20 date_begin=1555129558 Fri Apr 12 23:25:58 2019
+getmeasure 21 date_begin=1555437631 Tue Apr 16 13:00:31 2019
+getmeasure 22 date_begin=1555745513 Sat Apr 20 02:31:53 2019
+getmeasure 23 date_begin=1556056509 Tue Apr 23 16:55:09 2019
+getmeasure 24 date_begin=1556364890 Sat Apr 27 06:34:50 2019
+getmeasure 25 date_begin=1556673054 Tue Apr 30 20:10:54 2019
+getmeasure 26 date_begin=1556981282 Sat May  4 09:48:02 2019
+getmeasure 27 date_begin=1557289561 Tue May  7 23:26:01 2019
+getmeasure 28 date_begin=1557597853 Sat May 11 13:04:13 2019
+getmeasure 29 date_begin=1557905773 Wed May 15 02:36:13 2019
+getmeasure 30 date_begin=1558214058 Sat May 18 16:14:18 2019
+getmeasure 31 date_begin=1558523427 Wed May 22 06:10:27 2019
+getmeasure 32 date_begin=1558831502 Sat May 25 19:45:02 2019
+getmeasure 33 date_begin=1559162338 Wed May 29 15:38:58 2019
+getmeasure 34 date_begin=1559474716 Sun Jun  2 06:25:16 2019
+getmeasure 35 date_begin=1559782226 Wed Jun  5 19:50:26 2019
+getmeasure 36 date_begin=1560090402 Sun Jun  9 09:26:42 2019
+getmeasure 37 date_begin=1560398502 Wed Jun 12 23:01:42 2019
+getmeasure 38 date_begin=1560707096 Sun Jun 16 12:44:56 2019
+getmeasure 39 date_begin=1561015355 Thu Jun 20 02:22:35 2019
+getmeasure 40 date_begin=1561324614 Sun Jun 23 16:16:54 2019
+getmeasure 41 date_begin=1561633112 Thu Jun 27 05:58:32 2019
+getmeasure 42 date_begin=1561941398 Sun Jun 30 19:36:38 2019
+getmeasure 43 date_begin=1562648571 Tue Jul  9 00:02:51 2019
+getmeasure 44 date_begin=1562958030 Fri Jul 12 14:00:30 2019
+getmeasure 45 date_begin=1563267079 Tue Jul 16 03:51:19 2019
 #+end_example
 ** DONE Make graphs
 CLOSED: [2018-03-11 Sun 00:02]

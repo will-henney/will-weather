@@ -313,6 +313,46 @@ CLOSED: [2018-03-11 Sun 00:02]
 
 #+RESULTS:
 [[file:noise-test.png]]
+*** Rain
+#+BEGIN_SRC python :return plotfile :results file :exports both
+  import pandas as pd
+  from matplotlib import pyplot as plt
+  import seaborn as sns
+
+  df_inside = pd.read_csv("netatmo_station.csv", sep=';', index_col=1, parse_dates=True)
+  df_outside = pd.read_csv("netatmo_module.csv", sep=';', index_col=1, parse_dates=True)
+  df_rain =  pd.read_csv("netatmo_rain.csv", sep=';', index_col=1, parse_dates=True)
+  plotfile = "rain.png"
+
+  dfo_max_day = df_outside.resample('1D').max()
+  dfo_min_day = df_outside.resample('1D').min()
+  dfr_sum_day = df_rain.resample('1D').sum()
+
+  fig, (ax2, ax) = plt.subplots(2, 1, sharex=True, figsize=(15, 7))
+
+  ax2.plot(dfo_min_day.index.to_pydatetime(), dfo_min_day.Humidity, label="Daily min")
+  ax2.plot(dfo_max_day.index.to_pydatetime(), dfo_max_day.Humidity, label="Daily max")
+  ax2.legend()
+  ax2.set(
+      ylabel="Humidity, Percent"
+  )
+
+  ax.step(dfr_sum_day.index.to_pydatetime(), dfr_sum_day.Rain, label="Daily accum", where="mid")
+  ax.legend()
+  ax.set(
+      xlabel="Date",
+      ylabel="Rain, mm"
+  )
+
+  fig.savefig(plotfile, dpi=600)
+  fig.savefig(plotfile.replace(".png", ".pdf"))
+
+
+#+END_SRC
+
+#+RESULTS:
+[[file:rain.png]]
+
 *** Two-factor pair graphs
 
 Correlations between selected measurements.  This takes about a 20 seconds to run.

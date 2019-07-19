@@ -309,7 +309,7 @@ CLOSED: [2018-03-11 Sun 00:02]
   df = df_inside.join(df_outside, rsuffix=" out").join(df_rain, rsuffix=" rain")
 
   fig, axes = plt.subplots(2, 1, sharex=True, figsize=(15, 7))
-  for name, group in df.groupby(df.index.week):
+  for name, group in df.groupby((df.index.year, df.index.week)):
       start_day= group.index.min().to_pydatetime()
       #convert date to week age
       Xs = mdates.date2num(group.index.to_pydatetime()) \
@@ -342,6 +342,65 @@ CLOSED: [2018-03-11 Sun 00:02]
   + We can see spikes for breakfast, lunch, and tea
   + No spike at lunchtime on Saturday because we have salad
   + Big spike for breakfast pancakes on Sunday 
+
+#+begin_src python :return plotfile :results file :exports both
+  import numpy as np
+  import pandas as pd
+  from matplotlib import pyplot as plt
+  import seaborn as sns
+  import matplotlib.dates as mdates
+  from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
+                                 AutoMinorLocator)
+  sns.set_color_codes('dark')
+  plotfile = "rain-by-week.png"
+  weekday_names = "Mon Tue Wed Thu Fri Sat Sun Mon".split(' ')
+
+  df_inside = pd.read_csv("netatmo_station.csv", sep=';', index_col=1, parse_dates=True)
+  df_outside = pd.read_csv("netatmo_module.csv", sep=';', index_col=1, parse_dates=True)
+  df_rain =  pd.read_csv("netatmo_rain.csv", sep=';', index_col=1, parse_dates=True)
+
+  df_inside = df_inside.resample("10T").mean()
+  df_outside = df_outside.resample("10T").mean()
+  df_rain = df_rain.resample("10T").sum()
+
+  df = df_inside.join(df_outside, rsuffix=" out").join(df_rain, rsuffix=" rain")
+
+  fig, axes = plt.subplots(2, 1, sharex=True, figsize=(15, 7))
+  for name, group in df.groupby((df.index.year, df.index.week)):
+      if not np.any(group.Rain):
+          continue # skip dry weeks
+      start_day= group.index.min().to_pydatetime()
+      #convert date to week age
+      Xs = mdates.date2num(group.index.to_pydatetime()) \
+          - mdates.date2num(start_day)
+      group_by_hr = group.resample("1H").sum()
+      Xs_by_hr = mdates.date2num(group_by_hr.index.to_pydatetime()) \
+          - mdates.date2num(start_day)
+      group_by_hr.Rain[group_by_hr.Rain==0.0] = np.nan
+      # axes[0].plot(Xs, group.Rain, '.', lw=1.0, alpha=0.2, color='k')
+      axes[0].plot(Xs_by_hr, group_by_hr.Rain, 'o', mec="none", lw=1.0, alpha=0.5)
+      axes[1].plot(Xs, group["Humidity out"], lw=0.2, alpha=0.7, color='k')
+  axes[1].set_xticklabels(weekday_names)
+  axes[1].set_xticks(range(0, len(weekday_names)))
+  axes[0].set(
+      ylim=[-0.1, 30.1],
+      ylabel="Rain, mm / hour",
+  )
+  axes[1].set(
+      xlim=[-0.1, 7.1], ylim=[0.0, 100.0],
+      xlabel="Day of week", ylabel="Humidity, %",
+  )
+  for ax in axes:
+      ax.xaxis.set_minor_locator(AutoMinorLocator(8))
+      ax.grid(color='r', axis='x', alpha=0.5)
+      ax.grid(color='r', axis='x', alpha=0.2, which="minor")
+  fig.tight_layout()
+  fig.savefig(plotfile, dpi=600)
+
+#+end_src
+
+#+RESULTS:
+[[file:rain-by-week.png]]
 
 *** Two-factor pair graphs
 

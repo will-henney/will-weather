@@ -119,6 +119,9 @@ This implementation is just copied from ~netatmo.fetch~, but changing the necess
 
 #+end_src
 
+#+RESULTS:
+: None
+
 #+begin_src sh :results verbatim :exports both
 python netatmo-fetch-rain.py
 #+end_src
@@ -127,7 +130,7 @@ python netatmo-fetch-rain.py
 : module_id    : 05:00:00:02:d3:6c
 : module_name  : Rain Gauge
 : data_type    : ['Rain']
-: getmeasure 1 date_begin=1563474434 Thu Jul 18 13:27:14 2019
+: getmeasure 1 date_begin=1563800696 Mon Jul 22 08:04:56 2019
 
 
 
@@ -146,8 +149,8 @@ Run this periodically - it should just grab the new data (also run the rain gaug
 : module_id    : 02:00:00:22:b8:7e
 : module_name  : outdoor
 : data_type    : ['Temperature', 'Humidity']
-: getmeasure 1 date_begin=1563474435 Thu Jul 18 13:27:15 2019
-: getmeasure 1 date_begin=1563474434 Thu Jul 18 13:27:14 2019
+: getmeasure 1 date_begin=1563505607 Thu Jul 18 22:06:47 2019
+: getmeasure 1 date_begin=1563505605 Thu Jul 18 22:06:45 2019
 ** DONE Make graphs
 CLOSED: [2018-03-11 Sun 00:02]
 *** Inside and outside temperature and humidity
@@ -291,6 +294,7 @@ CLOSED: [2018-03-11 Sun 00:02]
 
 *** Organize by week
 #+begin_src python :return plotfile :results file :exports both
+  import sys
   import numpy as np
   import pandas as pd
   from matplotlib import pyplot as plt
@@ -309,21 +313,40 @@ CLOSED: [2018-03-11 Sun 00:02]
   df = df_inside.join(df_outside, rsuffix=" out").join(df_rain, rsuffix=" rain")
 
   fig, axes = plt.subplots(2, 1, sharex=True, figsize=(15, 7))
-  for name, group in df.groupby((df.index.year, df.index.week)):
+  co2_stack, noise_stack, Xs_stack = [], [], []
+  for name, group in df.groupby([df.index.year, df.index.week]):
       start_day= group.index.min().to_pydatetime()
       #convert date to week age
       Xs = mdates.date2num(group.index.to_pydatetime()) \
           - mdates.date2num(start_day)
-      axes[0].plot(Xs, group.Noise, lw=0.1, alpha=0.2, color='k')
-      axes[1].plot(Xs, group.CO2, lw=0.1, alpha=0.3, color='k')
+      mean_by_hr = group.resample("1H").mean()
+      mean_by_10m = group.resample("10T").mean()
+      Xs_by_hr = mdates.date2num(mean_by_hr.index.to_pydatetime()) \
+          - mdates.date2num(start_day)
+      Xs_by_10m = mdates.date2num(mean_by_10m.index.to_pydatetime()) \
+          - mdates.date2num(start_day)
+
+      axes[0].plot(Xs_by_10m, mean_by_10m.Noise, lw=0.1, alpha=0.2, color='k')
+      axes[1].plot(Xs_by_10m,  mean_by_10m.CO2, lw=0.1, alpha=0.3, color='k')
+      if len(Xs_by_10m) == 24*7*6:
+          # Only use full-week time series for calculating the means
+          co2_stack.append(mean_by_10m.CO2)
+          noise_stack.append(mean_by_10m.Noise)
+          Xs_stack.append(Xs_by_10m)
+
+  co2_mean = np.nanmean(co2_stack, axis=0)
+  noise_mean = np.nanmean(noise_stack, axis=0)
+  Xs_mean = np.nanmean(Xs_stack, axis=0)
+  axes[0].plot(Xs_mean, noise_mean, lw=2, color="r", alpha=0.4)
+  axes[1].plot(Xs_mean, co2_mean, lw=2, color="r", alpha=0.4)
   axes[1].set_xticklabels(weekday_names)
   axes[1].set_xticks(range(0, len(weekday_names)))
   axes[0].set(
-      ylim=[30.0, 80.0],
+      ylim=[30.0, 70.0],
       ylabel="Noise, dB",
   )
   axes[1].set(
-      xlim=[-0.1, 7.1], ylim=[300.0, 1000.0],
+      xlim=[-0.1, 7.1], ylim=[300.0, 900.0],
       xlabel="Day of week", ylabel="CO2, ppm",
   )
   for ax in axes:
@@ -366,6 +389,7 @@ CLOSED: [2018-03-11 Sun 00:02]
   df = df_inside.join(df_outside, rsuffix=" out").join(df_rain, rsuffix=" rain")
 
   fig, axes = plt.subplots(2, 1, sharex=True, figsize=(15, 7))
+  humidity_stack = []
   for name, group in df.groupby((df.index.year, df.index.week)):
       if not np.any(group.Rain):
           continue # skip dry weeks
@@ -374,12 +398,16 @@ CLOSED: [2018-03-11 Sun 00:02]
       Xs = mdates.date2num(group.index.to_pydatetime()) \
           - mdates.date2num(start_day)
       group_by_hr = group.resample("1H").sum()
+      mean_by_hr = group.resample("1H").mean()
       Xs_by_hr = mdates.date2num(group_by_hr.index.to_pydatetime()) \
           - mdates.date2num(start_day)
       group_by_hr.Rain[group_by_hr.Rain==0.0] = np.nan
       # axes[0].plot(Xs, group.Rain, '.', lw=1.0, alpha=0.2, color='k')
       axes[0].plot(Xs_by_hr, group_by_hr.Rain, 'o', mec="none", lw=1.0, alpha=0.5)
       axes[1].plot(Xs, group["Humidity out"], lw=0.2, alpha=0.7, color='k')
+      humidity_stack.append(mean_by_hr["Humidity out"])
+  humidity = np.nanmean(humidity_stack, axis=0)
+  axes[1].plot(Xs_by_hr, humidity, lw=2, color="r", alpha=0.4)
   axes[1].set_xticklabels(weekday_names)
   axes[1].set_xticks(range(0, len(weekday_names)))
   axes[0].set(

@@ -432,8 +432,9 @@ CLOSED: [2018-03-11 Sun 00:02]
 
 *** Two-factor pair graphs
 
-Correlations between selected measurements.  This takes about a 20 seconds to run.
-#+BEGIN_SRC python :return figfile :results file :exports both
+Correlations between selected measurements.  This takes about about 2 mins to run now, so I save it to a file and run it in a terminal.
+
+#+BEGIN_SRC python :return figfile :results file :exports both :tangle weather-2factor.py
   import numpy as np
   import pandas as pd
   from matplotlib import pyplot as plt
@@ -443,6 +444,11 @@ Correlations between selected measurements.  This takes about a 20 seconds to ru
 
   df_inside = pd.read_csv("netatmo_station.csv", sep=';', index_col=1, parse_dates=True)
   df_outside = pd.read_csv("netatmo_module.csv", sep=';', index_col=1, parse_dates=True)
+
+  # Correct the pressures from before 2019-07
+  lowmask = df_inside.Pressure < 1000.0
+  df_inside.Pressure[lowmask] += 212.0
+
 
   figfile = "weather-pairplot.png"
 
@@ -462,11 +468,13 @@ Correlations between selected measurements.  This takes about a 20 seconds to ru
   df = dfi_med_hr.join(dfo_med_hr, rsuffix=" out")
   df = df.iloc[day_indices]
   df = df.fillna(method='bfill')
+
+
   # df = dfi_min_day
   variables = ['Temperature', 'Temperature out', 'CO2', 'Humidity', 'Humidity out', 'Noise', 'Pressure']
   g = sns.PairGrid(df, vars=variables, size=1.5)
-  g = g.map_upper(plt.scatter, marker='.', alpha=0.1, facecolor='r', edgecolor='none')
-  g = g.map_lower(sns.kdeplot, cmap="Purples_d", n_levels=10)
+  g = g.map_upper(plt.scatter, marker='.', alpha=0.03, facecolor='r', edgecolor='none')
+  g = g.map_lower(sns.kdeplot, cmap="Purples_d", n_levels=15)
   g = g.map_diag(plt.hist)
   g.fig.suptitle("Hourly means, daytime only (7AM-7PM)")
   g.savefig(figfile)
@@ -479,8 +487,8 @@ Correlations between selected measurements.  This takes about a 20 seconds to ru
   df = df.fillna(method='bfill')
   variables = ['Temperature', 'Temperature out', 'CO2', 'Humidity', 'Humidity out', 'Noise', 'Pressure']
   g = sns.PairGrid(df, vars=variables, size=1.5)
-  g = g.map_upper(plt.scatter, marker='.', alpha=0.1, facecolor='r', edgecolor='none')
-  g = g.map_lower(sns.kdeplot, cmap="Purples_d", n_levels=10)
+  g = g.map_upper(plt.scatter, marker='.', alpha=0.03, facecolor='r', edgecolor='none')
+  g = g.map_lower(sns.kdeplot, cmap="Purples_d", n_levels=15)
   g = g.map_diag(plt.hist)
   g.fig.suptitle("Hourly means, nighttime only (7PM-7AM)")
   g.savefig(figfile.replace(".png", "-night.png"))

@@ -127,10 +127,46 @@ python netatmo-fetch-rain.py
 #+end_src
 
 #+RESULTS:
-: module_id    : 05:00:00:02:d3:6c
-: module_name  : Rain Gauge
-: data_type    : ['Rain']
-: getmeasure 1 date_begin=1563800696 Mon Jul 22 08:04:56 2019
+#+begin_example
+module_id    : 05:00:00:02:d3:6c
+module_name  : Rain Gauge
+data_type    : ['Rain']
+getmeasure 1 date_begin=1563800696 Mon Jul 22 08:04:56 2019
+getmeasure 2 date_begin=1564110283 Thu Jul 25 22:04:43 2019
+getmeasure 3 date_begin=1564416817 Mon Jul 29 11:13:37 2019
+getmeasure 4 date_begin=1564725776 Fri Aug  2 01:02:56 2019
+getmeasure 5 date_begin=1565034286 Mon Aug  5 14:44:46 2019
+getmeasure 6 date_begin=1565344039 Fri Aug  9 04:47:19 2019
+getmeasure 7 date_begin=1565653639 Mon Aug 12 18:47:19 2019
+getmeasure 8 date_begin=1565962321 Fri Aug 16 08:32:01 2019
+getmeasure 9 date_begin=1566281071 Tue Aug 20 01:04:31 2019
+getmeasure 10 date_begin=1566591876 Fri Aug 23 15:24:36 2019
+getmeasure 11 date_begin=1566900456 Tue Aug 27 05:07:36 2019
+getmeasure 12 date_begin=1567209300 Fri Aug 30 18:55:00 2019
+getmeasure 13 date_begin=1567517412 Tue Sep  3 08:30:12 2019
+getmeasure 14 date_begin=1567826467 Fri Sep  6 22:21:07 2019
+getmeasure 15 date_begin=1568135694 Tue Sep 10 12:14:54 2019
+getmeasure 16 date_begin=1568444897 Sat Sep 14 02:08:17 2019
+getmeasure 17 date_begin=1568753637 Tue Sep 17 15:53:57 2019
+getmeasure 18 date_begin=1569063236 Sat Sep 21 05:53:56 2019
+getmeasure 19 date_begin=1569371631 Tue Sep 24 19:33:51 2019
+getmeasure 20 date_begin=1569680883 Sat Sep 28 09:28:03 2019
+getmeasure 21 date_begin=1569990572 Tue Oct  1 23:29:32 2019
+getmeasure 22 date_begin=1570300230 Sat Oct  5 13:30:30 2019
+getmeasure 23 date_begin=1570607368 Wed Oct  9 02:49:28 2019
+getmeasure 24 date_begin=1570915601 Sat Oct 12 16:26:41 2019
+getmeasure 25 date_begin=1571226393 Wed Oct 16 06:46:33 2019
+getmeasure 26 date_begin=1571534774 Sat Oct 19 20:26:14 2019
+getmeasure 27 date_begin=1571842778 Wed Oct 23 09:59:38 2019
+getmeasure 28 date_begin=1572151826 Sat Oct 26 23:50:26 2019
+getmeasure 29 date_begin=1572460643 Wed Oct 30 12:37:23 2019
+getmeasure 30 date_begin=1572770800 Sun Nov  3 02:46:40 2019
+getmeasure 31 date_begin=1573080450 Wed Nov  6 16:47:30 2019
+getmeasure 32 date_begin=1573389486 Sun Nov 10 06:38:06 2019
+getmeasure 33 date_begin=1573698546 Wed Nov 13 20:29:06 2019
+getmeasure 34 date_begin=1574008767 Sun Nov 17 10:39:27 2019
+getmeasure 35 date_begin=1574319995 Thu Nov 21 01:06:35 2019
+#+end_example
 
 
 
@@ -142,15 +178,85 @@ Run this periodically - it should just grab the new data (also run the rain gaug
 #+END_SRC
 
 #+RESULTS:
-: station_name : Privada Hijos del Ejército
-: device_id    : 70:ee:50:22:ce:e6
-: module_name  : indoor
-: data_type    : ['Temperature', 'CO2', 'Humidity', 'Noise', 'Pressure']
-: module_id    : 02:00:00:22:b8:7e
-: module_name  : outdoor
-: data_type    : ['Temperature', 'Humidity']
-: getmeasure 1 date_begin=1563505607 Thu Jul 18 22:06:47 2019
-: getmeasure 1 date_begin=1563505605 Thu Jul 18 22:06:45 2019
+#+begin_example
+station_name : Privada Hijos del Ejército
+device_id    : 70:ee:50:22:ce:e6
+module_name  : indoor
+data_type    : ['Temperature', 'CO2', 'Humidity', 'Noise', 'Pressure']
+module_id    : 02:00:00:22:b8:7e
+module_name  : outdoor
+data_type    : ['Temperature', 'Humidity']
+getmeasure 1 date_begin=1563800707 Mon Jul 22 08:05:07 2019
+getmeasure 2 date_begin=1564110285 Thu Jul 25 22:04:45 2019
+getmeasure 3 date_begin=1564416821 Mon Jul 29 11:13:41 2019
+getmeasure 4 date_begin=1564725780 Fri Aug  2 01:03:00 2019
+getmeasure 5 date_begin=1565033686 Mon Aug  5 14:34:46 2019
+getmeasure 6 date_begin=1565343439 Fri Aug  9 04:37:19 2019
+getmeasure 7 date_begin=1565653031 Mon Aug 12 18:37:11 2019
+getmeasure 8 date_begin=1565961423 Fri Aug 16 08:17:03 2019
+getmeasure 9 date_begin=1566270168 Mon Aug 19 22:02:48 2019
+getmeasure 10 date_begin=1566579453 Fri Aug 23 11:57:33 2019
+getmeasure 11 date_begin=1566887757 Tue Aug 27 01:35:57 2019
+getmeasure 12 date_begin=1567196663 Fri Aug 30 15:24:23 2019
+getmeasure 13 date_begin=1567504374 Tue Sep  3 04:52:54 2019
+getmeasure 14 date_begin=1567813461 Fri Sep  6 18:44:21 2019
+getmeasure 15 date_begin=1568122707 Tue Sep 10 08:38:27 2019
+getmeasure 16 date_begin=1568431898 Fri Sep 13 22:31:38 2019
+getmeasure 17 date_begin=1568740851 Tue Sep 17 12:20:51 2019
+getmeasure 18 date_begin=1569050229 Sat Sep 21 02:17:09 2019
+getmeasure 19 date_begin=1569358607 Tue Sep 24 15:56:47 2019
+getmeasure 20 date_begin=1569667856 Sat Sep 28 05:50:56 2019
+getmeasure 21 date_begin=1569977283 Tue Oct  1 19:48:03 2019
+getmeasure 22 date_begin=1570286908 Sat Oct  5 09:48:28 2019
+getmeasure 23 date_begin=1570593760 Tue Oct  8 23:02:40 2019
+getmeasure 24 date_begin=1570902272 Sat Oct 12 12:44:32 2019
+getmeasure 25 date_begin=1571211284 Wed Oct 16 02:34:44 2019
+getmeasure 26 date_begin=1571519895 Sat Oct 19 16:18:15 2019
+getmeasure 27 date_begin=1571827648 Wed Oct 23 05:47:28 2019
+getmeasure 28 date_begin=1572136687 Sat Oct 26 19:38:07 2019
+getmeasure 29 date_begin=1572445502 Wed Oct 30 08:25:02 2019
+getmeasure 30 date_begin=1572754139 Sat Nov  2 22:08:59 2019
+getmeasure 31 date_begin=1573063488 Wed Nov  6 12:04:48 2019
+getmeasure 32 date_begin=1573372575 Sun Nov 10 01:56:15 2019
+getmeasure 33 date_begin=1573681581 Wed Nov 13 15:46:21 2019
+getmeasure 34 date_begin=1573991176 Sun Nov 17 05:46:16 2019
+getmeasure 35 date_begin=1574301191 Wed Nov 20 19:53:11 2019
+getmeasure 1 date_begin=1563800657 Mon Jul 22 08:04:17 2019
+getmeasure 2 date_begin=1564110558 Thu Jul 25 22:09:18 2019
+getmeasure 3 date_begin=1564418888 Mon Jul 29 11:48:08 2019
+getmeasure 4 date_begin=1564734524 Fri Aug  2 03:28:44 2019
+getmeasure 5 date_begin=1565042766 Mon Aug  5 17:06:06 2019
+getmeasure 6 date_begin=1565352480 Fri Aug  9 07:08:00 2019
+getmeasure 7 date_begin=1565662521 Mon Aug 12 21:15:21 2019
+getmeasure 8 date_begin=1565973805 Fri Aug 16 11:43:25 2019
+getmeasure 9 date_begin=1566282578 Tue Aug 20 01:29:38 2019
+getmeasure 10 date_begin=1566591524 Fri Aug 23 15:18:44 2019
+getmeasure 11 date_begin=1566900417 Tue Aug 27 05:06:57 2019
+getmeasure 12 date_begin=1567209005 Fri Aug 30 18:50:05 2019
+getmeasure 13 date_begin=1567519789 Tue Sep  3 09:09:49 2019
+getmeasure 14 date_begin=1567831299 Fri Sep  6 23:41:39 2019
+getmeasure 15 date_begin=1568140808 Tue Sep 10 13:40:08 2019
+getmeasure 16 date_begin=1568453022 Sat Sep 14 04:23:42 2019
+getmeasure 17 date_begin=1568762070 Tue Sep 17 18:14:30 2019
+getmeasure 18 date_begin=1569072624 Sat Sep 21 08:30:24 2019
+getmeasure 19 date_begin=1569381313 Tue Sep 24 22:15:13 2019
+getmeasure 20 date_begin=1569690516 Sat Sep 28 12:08:36 2019
+getmeasure 21 date_begin=1570000230 Wed Oct  2 02:10:30 2019
+getmeasure 22 date_begin=1570312450 Sat Oct  5 16:54:10 2019
+getmeasure 23 date_begin=1570621294 Wed Oct  9 06:41:34 2019
+getmeasure 24 date_begin=1570930764 Sat Oct 12 20:39:24 2019
+getmeasure 25 date_begin=1571240607 Wed Oct 16 10:43:27 2019
+getmeasure 26 date_begin=1571550110 Sun Oct 20 00:41:50 2019
+getmeasure 27 date_begin=1571858492 Wed Oct 23 14:21:32 2019
+getmeasure 28 date_begin=1572167885 Sun Oct 27 03:18:05 2019
+getmeasure 29 date_begin=1572476959 Wed Oct 30 17:09:19 2019
+getmeasure 30 date_begin=1572789532 Sun Nov  3 07:58:52 2019
+getmeasure 31 date_begin=1573099248 Wed Nov  6 22:00:48 2019
+getmeasure 32 date_begin=1573415864 Sun Nov 10 13:57:44 2019
+getmeasure 33 date_begin=1573730340 Thu Nov 14 05:19:00 2019
+getmeasure 34 date_begin=1574039958 Sun Nov 17 19:19:18 2019
+getmeasure 35 date_begin=1574350545 Thu Nov 21 09:35:45 2019
+#+end_example
 ** DONE Make graphs
 CLOSED: [2018-03-11 Sun 00:02]
 *** Inside and outside temperature and humidity
@@ -367,6 +473,7 @@ CLOSED: [2018-03-11 Sun 00:02]
   + Big spike for breakfast pancakes on Sunday 
 
 #+begin_src python :return plotfile :results file :exports both
+  import sys
   import numpy as np
   import pandas as pd
   from matplotlib import pyplot as plt
@@ -390,7 +497,7 @@ CLOSED: [2018-03-11 Sun 00:02]
 
   fig, axes = plt.subplots(2, 1, sharex=True, figsize=(15, 7))
   humidity_stack = []
-  for name, group in df.groupby((df.index.year, df.index.week)):
+  for name, group in df.groupby([df.index.year, df.index.week]):
       if not np.any(group.Rain):
           continue # skip dry weeks
       start_day= group.index.min().to_pydatetime()
@@ -399,13 +506,14 @@ CLOSED: [2018-03-11 Sun 00:02]
           - mdates.date2num(start_day)
       group_by_hr = group.resample("1H").sum()
       mean_by_hr = group.resample("1H").mean()
-      Xs_by_hr = mdates.date2num(group_by_hr.index.to_pydatetime()) \
-          - mdates.date2num(start_day)
-      group_by_hr.Rain[group_by_hr.Rain==0.0] = np.nan
-      # axes[0].plot(Xs, group.Rain, '.', lw=1.0, alpha=0.2, color='k')
-      axes[0].plot(Xs_by_hr, group_by_hr.Rain, 'o', mec="none", lw=1.0, alpha=0.5)
-      axes[1].plot(Xs, group["Humidity out"], lw=0.2, alpha=0.7, color='k')
-      humidity_stack.append(mean_by_hr["Humidity out"])
+      if len(mean_by_hr) == 24*7:
+          Xs_by_hr = mdates.date2num(group_by_hr.index.to_pydatetime()) \
+              - mdates.date2num(start_day)
+          group_by_hr.Rain[group_by_hr.Rain==0.0] = np.nan
+          axes[0].plot(Xs_by_hr, group_by_hr.Rain, 'o', mec="none", lw=1.0, alpha=0.5)
+          axes[1].plot(Xs, group["Humidity out"], lw=0.2, alpha=0.7, color='k')
+          humidity_stack.append(mean_by_hr["Humidity out"].values)
+  #sys.exit(repr(type(humidity_stack[0])))
   humidity = np.nanmean(humidity_stack, axis=0)
   axes[1].plot(Xs_by_hr, humidity, lw=2, color="r", alpha=0.4)
   axes[1].set_xticklabels(weekday_names)

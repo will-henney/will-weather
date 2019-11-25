@@ -538,6 +538,120 @@ CLOSED: [2018-03-11 Sun 00:02]
 #+RESULTS:
 [[file:rain-by-week.png]]
 
+
+
+*** Inter-year comparisons
+
+#+begin_src python :return plotfile :results file :exports both
+  import sys
+  import numpy as np
+  import pandas as pd
+  from matplotlib import pyplot as plt
+  import seaborn as sns
+  import matplotlib.dates as mdates
+  from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
+                                 AutoMinorLocator)
+  sns.set_color_codes('dark')
+  plotfile = "inter-year-weekly.png"
+  weekday_names = "Mon Tue Wed Thu Fri Sat Sun Mon".split(' ')
+
+  df_inside = pd.read_csv("netatmo_station.csv", sep=';', index_col=1, parse_dates=True)
+  df_outside = pd.read_csv("netatmo_module.csv", sep=';', index_col=1, parse_dates=True)
+  df_rain =  pd.read_csv("netatmo_rain.csv", sep=';', index_col=1, parse_dates=True)
+
+  df_inside = df_inside.resample("1W").mean()
+  df_outside = df_outside.resample("1W").mean()
+  df_rain = df_rain.resample("1W").sum()
+
+  df = df_inside.join(df_outside, rsuffix=" out").join(df_rain, rsuffix=" rain")
+
+  fig, axes = plt.subplots(2, 1, sharex=True, figsize=(15, 7))
+  humidity_stack = []
+  for yearname, group in df.groupby(df.index.year):
+      axes[0].plot(group.index.week, group.Rain,
+                   'o', mec="none", lw=1.0, alpha=0.5,
+                   label=yearname,
+      )
+      axes[1].plot(group.index.week, group["Humidity out"], alpha=0.7, label=yearname)
+  axes[0].legend()
+  axes[1].legend()
+  axes[0].set(
+      ylim=[-1.0, None],
+      ylabel="Rain, mm / week",
+  )
+  axes[1].set(
+      xlim=[-0.1, 52.1], ylim=[0.0, 100.0],
+      xlabel="Week", ylabel="Humidity, %",
+  )
+  for ax in axes:
+      ax.grid(color='r', axis='x', alpha=0.5)
+      ax.grid(color='r', axis='x', alpha=0.2, which="minor")
+  fig.tight_layout()
+  fig.savefig(plotfile, dpi=600)
+
+#+end_src
+
+#+RESULTS:
+[[file:inter-year-weekly.png]]
+
+
+#+begin_src python :return plotfile :results file :exports both
+  import sys
+  import numpy as np
+  import pandas as pd
+  from matplotlib import pyplot as plt
+  import seaborn as sns
+  import matplotlib.dates as mdates
+  from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
+                                 AutoMinorLocator)
+  sns.set_color_codes('dark')
+  plotfile = "inter-year-accum.png"
+  weekday_names = "Mon Tue Wed Thu Fri Sat Sun Mon".split(' ')
+
+  df_inside = pd.read_csv("netatmo_station.csv", sep=';', index_col=1, parse_dates=True)
+  df_outside = pd.read_csv("netatmo_module.csv", sep=';', index_col=1, parse_dates=True)
+  df_rain =  pd.read_csv("netatmo_rain.csv", sep=';', index_col=1, parse_dates=True)
+
+  df_inside = df_inside.resample("1D").max()
+  df_outside = df_outside.resample("1D").max()
+  df_rain = df_rain.resample("1D").sum()
+
+  df = df_inside.join(df_outside, rsuffix=" out").join(df_rain, rsuffix=" rain")
+
+  fig, axes = plt.subplots(3, 1, sharex=True, figsize=(15, 7))
+  humidity_stack = []
+  for yearname, group in df.groupby(df.index.year):
+      axes[0].plot(group.index.dayofyear, group.Rain.cumsum(),
+                   alpha=0.7,
+                   label=yearname,
+      )
+      axes[1].plot(group.index.dayofyear, group["Humidity out"], alpha=0.7, label=yearname)
+      axes[2].plot(group.index.dayofyear, group["Temperature out"], alpha=0.7, label=yearname)
+  axes[0].set(
+      ylim=[-1.0, None],
+      ylabel="Cumulative rain, mm",
+  )
+  axes[1].set(
+      ylim=[-1.0, 101.0],
+      ylabel="Max Humidity, %",
+  )
+  axes[2].set(
+      xlim=[-0.1, 365.1], ylim=[10.0, 40.0],
+      xlabel="Day", ylabel="Max Temperature, C",
+  )
+  for ax in axes:
+      ax.legend()
+      ax.grid(color='r', axis='x', alpha=0.5)
+      ax.grid(color='r', axis='x', alpha=0.2, which="minor")
+  fig.tight_layout()
+  fig.savefig(plotfile, dpi=600)
+
+#+end_src
+
+#+RESULTS:
+[[file:inter-year-accum.png]]
+
+So, 2019 has half the rain of 2018
 *** Two-factor pair graphs
 
 Correlations between selected measurements.  This takes about about 2 mins to run now, so I save it to a file and run it in a terminal.

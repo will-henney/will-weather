@@ -612,8 +612,8 @@ CLOSED: [2018-03-11 Sun 00:02]
   df_outside = pd.read_csv("netatmo_module.csv", sep=';', index_col=1, parse_dates=True)
   df_rain =  pd.read_csv("netatmo_rain.csv", sep=';', index_col=1, parse_dates=True)
 
-  df_inside = df_inside.resample("1D").max()
-  df_outside = df_outside.resample("1D").max()
+  df_inside = df_inside.resample("1D").min()
+  df_outside = df_outside.resample("1D").min()
   df_rain = df_rain.resample("1D").sum()
 
   df = df_inside.join(df_outside, rsuffix=" out").join(df_rain, rsuffix=" rain")
@@ -633,11 +633,11 @@ CLOSED: [2018-03-11 Sun 00:02]
   )
   axes[1].set(
       ylim=[-1.0, 101.0],
-      ylabel="Max Humidity, %",
+      ylabel="Min Humidity, %",
   )
   axes[2].set(
-      xlim=[-0.1, 365.1], ylim=[10.0, 40.0],
-      xlabel="Day", ylabel="Max Temperature, C",
+      xlim=[-0.1, 365.1], ylim=[5.0, 25.0],
+      xlabel="Day", ylabel="Min Temperature, C",
   )
   for ax in axes:
       ax.legend()

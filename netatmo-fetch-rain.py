@@ -1,5 +1,5 @@
 import sys
-sys.path.append("/Users/will/Source/netatmo")
+sys.path.append("/Users/will/Source/netatmo/src/netatmo")
 import netatmo
 
 def fetch_rain():

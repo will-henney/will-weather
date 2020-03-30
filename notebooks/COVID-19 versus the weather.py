@@ -115,4 +115,47 @@ sns.despine()
 #
 # A 40% reduction in reproduction rate (from hygiene measures and social distancing) would be enough to reduce that to almost zero in rainy season.  And that would need to be a 60% reduction during the dry season.  Note that the reduction measures need to be permanent in order to be effective in the long term. 
 
+# ### Update 2020-03-29
+#
+# There have been several more recent papers that suggest that it is the absolute humidity that matters.  For instance, [Qasim Bukhari and Yusuf Jameel. Will coronavirus pandemic diminish by summer? SSRN, March 2020.](https://ssrn.com/abstract=3556998)
+#
+
+# The absolute humidity follows from the Clausius–Clapeyron equation:
+# $$
+# \mathrm{AH} = 
+# \frac{
+# 13.247\, H \, e^{17.6 T / (T + 243.5)} 
+# }{
+# 273.15 + T
+# } \ \mathrm{g\,m^{-3}} \ ,
+# $$
+# where $T$ is temperature in celsius and $H$ is relative humidity in per-cent.
+
+import numpy as np
+
+sns.set_context('poster')
+
+T = df_mean["Temperature"]
+df_mean["AH"] = 13.247*df_mean["Humidity"]*np.exp(17.6*T/(T + 243.5))/(273.15 + T)
+
+fig, ax = plt.subplots(figsize=(16,6))
+scat = ax.scatter("DAY", "AH", data=df_mean, c=df_mean.index.year, 
+                  edgecolors="k", linewidths=0.5,
+                  marker=".", vmin=2017.5, vmax=2020.5, cmap="viridis_r")
+cb = fig.colorbar(scat, ax=ax, ticks=[2018, 2019, 2020], format="%d")
+ax.axhspan(4.0, 10.0, color="r", alpha=0.1, zorder=-10)
+for i, s in zip([0, 91, 182, 273], ["winter\nsolstice", "spring\nequinox", "summer\nsolstice", "autumn\nequinox"]): 
+    # Try and hit equinoxes and solstices
+    iday = (i - 10) % 365
+    ax.axvline(iday, color="k", ls="--", zorder=-10, alpha=0.3, ymax=0.85)
+    ax.text(iday, 18.0, s, ha="center")
+ax.set(
+    ylim=[0, 20],
+    ylabel='Absolute humidity, g/m$^3$',
+    xlabel='Day of year',
+)
+sns.despine()
+fig.tight_layout()
+fig.savefig("morelia-absolute-humidity-2018-to-2020.")
+
 

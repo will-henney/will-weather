@@ -128,11 +128,51 @@ python netatmo-fetch-rain.py
 #+end_src
 
 #+RESULTS:
-: module_id    : 05:00:00:02:d3:6c
-: module_name  : Rain Gauge
-: data_type    : ['Rain']
-: getmeasure 1 date_begin=1585004344 Mon Mar 23 16:59:04 2020
-: getmeasure 2 date_begin=1585313700 Fri Mar 27 06:55:00 2020
+#+begin_example
+module_id    : 05:00:00:02:d3:6c
+module_name  : Rain Gauge
+data_type    : ['Rain']
+getmeasure 1 date_begin=1585591277 Mon Mar 30 12:01:17 2020
+getmeasure 2 date_begin=1585900223 Fri Apr  3 01:50:23 2020
+getmeasure 3 date_begin=1586209271 Mon Apr  6 16:41:11 2020
+getmeasure 4 date_begin=1586518985 Fri Apr 10 06:43:05 2020
+getmeasure 5 date_begin=1586828949 Mon Apr 13 20:49:09 2020
+getmeasure 6 date_begin=1587137314 Fri Apr 17 10:28:34 2020
+getmeasure 7 date_begin=1587443223 Mon Apr 20 23:27:03 2020
+getmeasure 8 date_begin=1587750804 Fri Apr 24 12:53:24 2020
+getmeasure 9 date_begin=1588058602 Tue Apr 28 02:23:22 2020
+getmeasure 10 date_begin=1588367664 Fri May  1 16:14:24 2020
+getmeasure 11 date_begin=1588675353 Tue May  5 05:42:33 2020
+getmeasure 12 date_begin=1588980844 Fri May  8 18:34:04 2020
+getmeasure 13 date_begin=1589287866 Tue May 12 07:51:06 2020
+getmeasure 14 date_begin=1589596310 Fri May 15 21:31:50 2020
+getmeasure 15 date_begin=1589904462 Tue May 19 11:07:42 2020
+getmeasure 16 date_begin=1590212228 Sat May 23 00:37:08 2020
+getmeasure 17 date_begin=1590521430 Tue May 26 14:30:30 2020
+getmeasure 18 date_begin=1590828415 Sat May 30 03:46:55 2020
+getmeasure 19 date_begin=1591136258 Tue Jun  2 17:17:38 2020
+getmeasure 20 date_begin=1591444139 Sat Jun  6 06:48:59 2020
+getmeasure 21 date_begin=1591751675 Tue Jun  9 20:14:35 2020
+getmeasure 22 date_begin=1592059005 Sat Jun 13 09:36:45 2020
+getmeasure 23 date_begin=1592367041 Tue Jun 16 23:10:41 2020
+getmeasure 24 date_begin=1592682383 Sat Jun 20 14:46:23 2020
+getmeasure 25 date_begin=1592990008 Wed Jun 24 04:13:28 2020
+getmeasure 26 date_begin=1593298209 Sat Jun 27 17:50:09 2020
+getmeasure 27 date_begin=1593604924 Wed Jul  1 07:02:04 2020
+getmeasure 28 date_begin=1593912972 Sat Jul  4 20:36:12 2020
+getmeasure 29 date_begin=1594220073 Wed Jul  8 09:54:33 2020
+getmeasure 30 date_begin=1594527224 Sat Jul 11 23:13:44 2020
+getmeasure 31 date_begin=1594834259 Wed Jul 15 12:30:59 2020
+getmeasure 32 date_begin=1595142555 Sun Jul 19 02:09:15 2020
+getmeasure 33 date_begin=1595449609 Wed Jul 22 15:26:49 2020
+getmeasure 34 date_begin=1595755351 Sun Jul 26 04:22:31 2020
+getmeasure 35 date_begin=1596061540 Wed Jul 29 17:25:40 2020
+getmeasure 36 date_begin=1596369063 Sun Aug  2 06:51:03 2020
+getmeasure 37 date_begin=1596676328 Wed Aug  5 20:12:08 2020
+getmeasure 38 date_begin=1596983543 Sun Aug  9 09:32:23 2020
+getmeasure 39 date_begin=1597292116 Wed Aug 12 23:15:16 2020
+getmeasure 40 date_begin=1597599614 Sun Aug 16 12:40:14 2020
+#+end_example
 
 
 
@@ -152,10 +192,84 @@ data_type    : ['Temperature', 'CO2', 'Humidity', 'Noise', 'Pressure']
 module_id    : 02:00:00:22:b8:7e
 module_name  : outdoor
 data_type    : ['Temperature', 'Humidity']
-getmeasure 1 date_begin=1585004349 Mon Mar 23 16:59:09 2020
-getmeasure 2 date_begin=1585313702 Fri Mar 27 06:55:02 2020
-getmeasure 1 date_begin=1585004242 Mon Mar 23 16:57:22 2020
-getmeasure 2 date_begin=1585314578 Fri Mar 27 07:09:38 2020
+getmeasure 1 date_begin=1585591281 Mon Mar 30 12:01:21 2020
+getmeasure 2 date_begin=1585900233 Fri Apr  3 01:50:33 2020
+getmeasure 3 date_begin=1586209274 Mon Apr  6 16:41:14 2020
+getmeasure 4 date_begin=1586518986 Fri Apr 10 06:43:06 2020
+getmeasure 5 date_begin=1586828956 Mon Apr 13 20:49:16 2020
+getmeasure 6 date_begin=1587137016 Fri Apr 17 10:23:36 2020
+getmeasure 7 date_begin=1587442330 Mon Apr 20 23:12:10 2020
+getmeasure 8 date_begin=1587749906 Fri Apr 24 12:38:26 2020
+getmeasure 9 date_begin=1588057698 Tue Apr 28 02:08:18 2020
+getmeasure 10 date_begin=1588366759 Fri May  1 15:59:19 2020
+getmeasure 11 date_begin=1588674456 Tue May  5 05:27:36 2020
+getmeasure 12 date_begin=1588979995 Fri May  8 18:19:55 2020
+getmeasure 13 date_begin=1589286667 Tue May 12 07:31:07 2020
+getmeasure 14 date_begin=1589595106 Fri May 15 21:11:46 2020
+getmeasure 15 date_begin=1589903263 Tue May 19 10:47:43 2020
+getmeasure 16 date_begin=1590211033 Sat May 23 00:17:13 2020
+getmeasure 17 date_begin=1590520226 Tue May 26 14:10:26 2020
+getmeasure 18 date_begin=1590826920 Sat May 30 03:22:00 2020
+getmeasure 19 date_begin=1591134762 Tue Jun  2 16:52:42 2020
+getmeasure 20 date_begin=1591442640 Sat Jun  6 06:24:00 2020
+getmeasure 21 date_begin=1591749868 Tue Jun  9 19:44:28 2020
+getmeasure 22 date_begin=1592057205 Sat Jun 13 09:06:45 2020
+getmeasure 23 date_begin=1592364936 Tue Jun 16 22:35:36 2020
+getmeasure 24 date_begin=1592673018 Sat Jun 20 12:10:18 2020
+getmeasure 25 date_begin=1592980671 Wed Jun 24 01:37:51 2020
+getmeasure 26 date_begin=1593289154 Sat Jun 27 15:19:14 2020
+getmeasure 27 date_begin=1593595643 Wed Jul  1 04:27:23 2020
+getmeasure 28 date_begin=1593903313 Sat Jul  4 17:55:13 2020
+getmeasure 29 date_begin=1594210430 Wed Jul  8 07:13:50 2020
+getmeasure 30 date_begin=1594517666 Sat Jul 11 20:34:26 2020
+getmeasure 31 date_begin=1594824312 Wed Jul 15 09:45:12 2020
+getmeasure 32 date_begin=1595131398 Sat Jul 18 23:03:18 2020
+getmeasure 33 date_begin=1595438142 Wed Jul 22 12:15:42 2020
+getmeasure 34 date_begin=1595743887 Sun Jul 26 01:11:27 2020
+getmeasure 35 date_begin=1596049770 Wed Jul 29 14:09:30 2020
+getmeasure 36 date_begin=1596356706 Sun Aug  2 03:25:06 2020
+getmeasure 37 date_begin=1596663668 Wed Aug  5 16:41:08 2020
+getmeasure 38 date_begin=1596970862 Sun Aug  9 06:01:02 2020
+getmeasure 39 date_begin=1597279455 Wed Aug 12 19:44:15 2020
+getmeasure 40 date_begin=1597586942 Sun Aug 16 09:09:02 2020
+getmeasure 41 date_begin=1597894511 Wed Aug 19 22:35:11 2020
+getmeasure 1 date_begin=1585591277 Mon Mar 30 12:01:17 2020
+getmeasure 2 date_begin=1585900531 Fri Apr  3 01:55:31 2020
+getmeasure 3 date_begin=1586209835 Mon Apr  6 16:50:35 2020
+getmeasure 4 date_begin=1586519588 Fri Apr 10 06:53:08 2020
+getmeasure 5 date_begin=1586911082 Tue Apr 14 19:38:02 2020
+getmeasure 6 date_begin=1588095093 Tue Apr 28 12:31:33 2020
+getmeasure 7 date_begin=1588404436 Sat May  2 02:27:16 2020
+getmeasure 8 date_begin=1588712721 Tue May  5 16:05:21 2020
+getmeasure 9 date_begin=1589019141 Sat May  9 05:12:21 2020
+getmeasure 10 date_begin=1589327061 Tue May 12 18:44:21 2020
+getmeasure 11 date_begin=1589635852 Sat May 16 08:30:52 2020
+getmeasure 12 date_begin=1589943670 Tue May 19 22:01:10 2020
+getmeasure 13 date_begin=1590257069 Sat May 23 13:04:29 2020
+getmeasure 14 date_begin=1590566649 Wed May 27 03:04:09 2020
+getmeasure 15 date_begin=1590875780 Sat May 30 16:56:20 2020
+getmeasure 16 date_begin=1591184424 Wed Jun  3 06:40:24 2020
+getmeasure 17 date_begin=1591493742 Sat Jun  6 20:35:42 2020
+getmeasure 18 date_begin=1591802713 Wed Jun 10 10:25:13 2020
+getmeasure 19 date_begin=1592110274 Sat Jun 13 23:51:14 2020
+getmeasure 20 date_begin=1592418637 Wed Jun 17 13:30:37 2020
+getmeasure 21 date_begin=1592726428 Sun Jun 21 03:00:28 2020
+getmeasure 22 date_begin=1593034637 Wed Jun 24 16:37:17 2020
+getmeasure 23 date_begin=1593342916 Sun Jun 28 06:15:16 2020
+getmeasure 24 date_begin=1593650425 Wed Jul  1 19:40:25 2020
+getmeasure 25 date_begin=1593958551 Sun Jul  5 09:15:51 2020
+getmeasure 26 date_begin=1594266849 Wed Jul  8 22:54:09 2020
+getmeasure 27 date_begin=1594574770 Sun Jul 12 12:26:10 2020
+getmeasure 28 date_begin=1594881643 Thu Jul 16 01:40:43 2020
+getmeasure 29 date_begin=1595191921 Sun Jul 19 15:52:01 2020
+getmeasure 30 date_begin=1595500167 Thu Jul 23 05:29:27 2020
+getmeasure 31 date_begin=1595807882 Sun Jul 26 18:58:02 2020
+getmeasure 32 date_begin=1596116398 Thu Jul 30 08:39:58 2020
+getmeasure 33 date_begin=1596423985 Sun Aug  2 22:06:25 2020
+getmeasure 34 date_begin=1596732967 Thu Aug  6 11:56:07 2020
+getmeasure 35 date_begin=1597041162 Mon Aug 10 01:32:42 2020
+getmeasure 36 date_begin=1597350671 Thu Aug 13 15:31:11 2020
+getmeasure 37 date_begin=1597659656 Mon Aug 17 05:20:56 2020
 #+end_example
 ** DONE Make graphs
 CLOSED: [2018-03-11 Sun 00:02]
@@ -469,10 +583,10 @@ CLOSED: [2018-03-11 Sun 00:02]
   humidity_stack = []
   for yearname, group in df.groupby(df.index.year):
       axes[0].plot(group.index.week, group.Rain,
-                   'o', mec="none", lw=1.0, alpha=0.5,
+                   'o', mec="none", lw=1.0, alpha=0.8,
                    label=yearname,
       )
-      axes[1].plot(group.index.week, group["Humidity out"], alpha=0.7, label=yearname)
+      axes[1].plot(group.index.week, group["Humidity out"], alpha=0.9, label=yearname)
   axes[0].legend()
   axes[1].legend()
   axes[0].set(

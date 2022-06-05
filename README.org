@@ -15,10 +15,15 @@
 #+END_SRC
 
 #+RESULTS:
-: 1 station 70:ee:50:22:ce:e6 Privada Hijos del Ejército Morelia MX
+: 1 station 70:ee:50:22:ce:e6 Privada Hijos del Ejército (indoor) Morelia MX
 :    module 70:ee:50:22:ce:e6 indoor Temperature,CO2,Humidity,Noise,Pressure
-:    module 02:00:00:22:b8:7e outdoor Temperature,Humidity
 :    module 05:00:00:02:d3:6c Rain Gauge Rain
+:    module 02:00:00:63:0a:7e Outdoor Module Temperature,Humidity
+
+Note that previous outdoor module was
+: module 02:00:00:22:b8:7e outdoor Temperature,Humidity
+I still have to work out how to get the data from that
+
 ** DONE Deal with the rain gauge
 CLOSED: [2020-03-15 Sun 22:54]
 - This shows up in the available stations, but I am not sure how to grab the data from it
@@ -27,6 +32,200 @@ CLOSED: [2020-03-15 Sun 22:54]
 ~/Source/netatmo/netatmo.py dump
 #+END_SRC
 
+#+RESULTS:
+#+begin_example
+station Privada Hijos del Ejército (indoor)
+          date_setup : 1520632818 - 2018-03-09 16:00:18
+          last_setup : 1520632818 - 2018-03-09 16:00:18
+        last_upgrade : 1520632820 - 2018-03-09 16:00:20
+               place : Morelia MX / alt 1921
+         wifi_status : 62
+   last_status_store : 1654457799 - 2022-06-05 14:36:39
+module indoor - Main device
+                 _id : 70:ee:50:22:ce:e6
+           data_type : ['Temperature', 'CO2', 'Humidity', 'Noise', 'Pressure']
+    AbsolutePressure > 803.1
+       date_max_temp > 1654457462 - 2022-06-05 14:31:02
+       date_min_temp > 1654433546 - 2022-06-05 07:52:26
+            max_temp > 26.5
+            min_temp > 23.2
+      pressure_trend > stable
+          temp_trend > up
+            time_utc > 1654457764 - 2022-06-05 14:36:04
+                 CO2 = 616
+            Humidity = 48
+               Noise = 35
+            Pressure = 1013.7
+         Temperature = 26.5
+module Rain Gauge - Rain Gauge
+                 _id : 05:00:00:02:d3:6c
+           data_type : ['Rain']
+          last_setup : 1523057640 - 2018-04-06 18:34:00
+            firmware : 12
+           rf_status : 72 (90=low, 60=highest)
+     battery_percent : 89 %
+        last_message : 1654457792 - 2018-04-06 18:34:00
+           last_seen : 1654457792 - 2018-04-06 18:34:00
+          sum_rain_1 > 0
+         sum_rain_24 > 0
+            time_utc > 1654457754 - 2022-06-05 14:35:54
+                Rain = 0
+module Outdoor Module - Outdoor
+                 _id : 02:00:00:63:0a:7e
+           data_type : ['Temperature', 'Humidity']
+          last_setup : 1639677415 - 2021-12-16 11:56:55
+            firmware : 50
+           rf_status : 83 (90=low, 60=highest)
+     battery_percent : 84 %
+        last_message : 1654457792 - 2021-12-16 11:56:55
+           last_seen : 1654457773 - 2021-12-16 11:56:55
+       date_max_temp > 1654457722 - 2022-06-05 14:35:22
+       date_min_temp > 1654432601 - 2022-06-05 07:36:41
+            max_temp > 30.8
+            min_temp > 19.7
+          temp_trend > up
+            time_utc > 1654457722 - 2022-06-05 14:35:22
+            Humidity = 36
+         Temperature = 30.8
+{'body': {'1654456252': [26.3, 631, 49, 35, 1014.3], '1654456555': [26.3, 626, 49, 35, 1014.2], '1654456860': [26.4, 629, 48, 36, 1014.1], '1654457162': [26.4, 625, 48, 35, 1013.9], '1654457462': [26.5, 613, 48, 35, 1013.8], '1654457764': [26.5, 616, 48, 35, 1013.7]}, 'status': 'ok', 'time_exec': 0.22655606269836426, 'time_server': 1654458003}
+{'body': {'1654456253': [0], '1654456547': [0], '1654456858': [0], '1654457153': [0], '1654457459': [0], '1654457754': [0]}, 'status': 'ok', 'time_exec': 0.5860848426818848, 'time_server': 1654458005}
+{'body': {'1654456233': [30.6, 35], '1654456541': [30.6, 34], '1654456851': [30.5, 36], '1654457159': [30.6, 36], '1654457414': [30.6, 36], '1654457722': [30.8, 36]}, 'status': 'ok', 'time_exec': 0.2695600986480713, 'time_server': 1654458006}
+#+end_example
+
+So the ~dump~ command works fine.  We just need to work out how to change the ~fetch~ command. 
+
+This implementation is just copied from ~netatmo.fetch~, but changing the necessary parameters to fetch data from the rain gauge. 
+
+#+begin_src python :tangle netatmo-fetch-rain.py
+  import sys
+  sys.path.append("/Users/will/Source/netatmo/src/netatmo")
+  import netatmo
+
+  def fetch_rain():
+      """
+          retrieve measures from rain station and append them to csv files
+      """
+      ws = netatmo.WeatherStation(netatmo.DEFAULT_RC_FILE)
+      if not ws.get_data():
+          return
+      station = ws.station_by_name()
+      rainmodule = station['modules'][0]
+      print("module_id    : {}".format(rainmodule['_id']))
+      print("module_name  : {}".format(rainmodule['module_name']))
+      print("data_type    : {}".format(rainmodule['data_type']))
+
+      data_type = ["Rain"]
+      netatmo.dl_csv(ws, "netatmo_rain.csv",j
+                     station['_id'], rainmodule['_id'],
+                     data_type, rainmodule['dashboard_data']['time_utc'])
+
+
+  if __name__ == "__main__":
+      fetch_rain()
+
+#+end_src
+
+#+RESULTS:
+: None
+
+#+begin_src sh :results verbatim :exports both
+python netatmo-fetch-rain.py
+#+end_src
+
+#+RESULTS:
+#+begin_example
+module_id    : 05:00:00:02:d3:6c
+module_name  : Rain Gauge
+data_type    : ['Rain']
+getmeasure 1 date_begin=1628257366 Fri Aug  6 08:42:46 2021
+getmeasure 2 date_begin=1628572298 Tue Aug 10 00:11:38 2021
+getmeasure 3 date_begin=1628881199 Fri Aug 13 13:59:59 2021
+getmeasure 4 date_begin=1629189131 Tue Aug 17 03:32:11 2021
+getmeasure 5 date_begin=1629497589 Fri Aug 20 17:13:09 2021
+getmeasure 6 date_begin=1629804702 Tue Aug 24 06:31:42 2021
+getmeasure 7 date_begin=1630111686 Fri Aug 27 19:48:06 2021
+getmeasure 8 date_begin=1630419144 Tue Aug 31 09:12:24 2021
+getmeasure 9 date_begin=1630725809 Fri Sep  3 22:23:29 2021
+getmeasure 10 date_begin=1631033843 Tue Sep  7 11:57:23 2021
+getmeasure 11 date_begin=1631341244 Sat Sep 11 01:20:44 2021
+getmeasure 12 date_begin=1631647965 Tue Sep 14 14:32:45 2021
+getmeasure 13 date_begin=1631956475 Sat Sep 18 04:14:35 2021
+getmeasure 14 date_begin=1632264536 Tue Sep 21 17:48:56 2021
+getmeasure 15 date_begin=1632573212 Sat Sep 25 07:33:32 2021
+getmeasure 16 date_begin=1632881414 Tue Sep 28 21:10:14 2021
+getmeasure 17 date_begin=1633191195 Sat Oct  2 11:13:15 2021
+getmeasure 18 date_begin=1633499512 Wed Oct  6 00:51:52 2021
+getmeasure 19 date_begin=1633807599 Sat Oct  9 14:26:39 2021
+getmeasure 20 date_begin=1634115648 Wed Oct 13 04:00:48 2021
+getmeasure 21 date_begin=1634423669 Sat Oct 16 17:34:29 2021
+getmeasure 22 date_begin=1634731641 Wed Oct 20 07:07:21 2021
+getmeasure 23 date_begin=1635040279 Sat Oct 23 20:51:19 2021
+getmeasure 24 date_begin=1635347929 Wed Oct 27 10:18:49 2021
+getmeasure 25 date_begin=1635656074 Sat Oct 30 23:54:34 2021
+getmeasure 26 date_begin=1635964615 Wed Nov  3 12:36:55 2021
+getmeasure 27 date_begin=1636272624 Sun Nov  7 02:10:24 2021
+getmeasure 28 date_begin=1636581505 Wed Nov 10 15:58:25 2021
+getmeasure 29 date_begin=1636890246 Sun Nov 14 05:44:06 2021
+getmeasure 30 date_begin=1637199299 Wed Nov 17 19:34:59 2021
+getmeasure 31 date_begin=1637507148 Sun Nov 21 09:05:48 2021
+getmeasure 32 date_begin=1637816311 Wed Nov 24 22:58:31 2021
+getmeasure 33 date_begin=1638125602 Sun Nov 28 12:53:22 2021
+getmeasure 34 date_begin=1638433829 Thu Dec  2 02:30:29 2021
+getmeasure 35 date_begin=1638741364 Sun Dec  5 15:56:04 2021
+getmeasure 36 date_begin=1639048222 Thu Dec  9 05:10:22 2021
+getmeasure 37 date_begin=1639357205 Sun Dec 12 19:00:05 2021
+getmeasure 38 date_begin=1639665881 Thu Dec 16 08:44:41 2021
+getmeasure 39 date_begin=1639971808 Sun Dec 19 21:43:28 2021
+getmeasure 40 date_begin=1640280202 Thu Dec 23 11:23:22 2021
+getmeasure 41 date_begin=1640587392 Mon Dec 27 00:43:12 2021
+getmeasure 42 date_begin=1640896286 Thu Dec 30 14:31:26 2021
+getmeasure 43 date_begin=1641203763 Mon Jan  3 03:56:03 2022
+getmeasure 44 date_begin=1641511875 Thu Jan  6 17:31:15 2022
+getmeasure 45 date_begin=1641820153 Mon Jan 10 07:09:13 2022
+getmeasure 46 date_begin=1642128624 Thu Jan 13 20:50:24 2022
+getmeasure 47 date_begin=1642436608 Mon Jan 17 10:23:28 2022
+getmeasure 48 date_begin=1642744348 Thu Jan 20 23:52:28 2022
+getmeasure 49 date_begin=1643053305 Mon Jan 24 13:41:45 2022
+getmeasure 50 date_begin=1643361366 Fri Jan 28 03:16:06 2022
+getmeasure 51 date_begin=1643670054 Mon Jan 31 17:00:54 2022
+getmeasure 52 date_begin=1643978013 Fri Feb  4 06:33:33 2022
+getmeasure 53 date_begin=1644286047 Mon Feb  7 20:07:27 2022
+getmeasure 54 date_begin=1644594512 Fri Feb 11 09:48:32 2022
+getmeasure 55 date_begin=1644903024 Mon Feb 14 23:30:24 2022
+getmeasure 56 date_begin=1645211331 Fri Feb 18 13:08:51 2022
+getmeasure 57 date_begin=1645519097 Tue Feb 22 02:38:17 2022
+getmeasure 58 date_begin=1645826888 Fri Feb 25 16:08:08 2022
+getmeasure 59 date_begin=1646135026 Tue Mar  1 05:43:46 2022
+getmeasure 60 date_begin=1646442856 Fri Mar  4 19:14:16 2022
+getmeasure 61 date_begin=1646751595 Tue Mar  8 08:59:55 2022
+getmeasure 62 date_begin=1647060310 Fri Mar 11 22:45:10 2022
+getmeasure 63 date_begin=1647368576 Tue Mar 15 12:22:56 2022
+getmeasure 64 date_begin=1647675239 Sat Mar 19 01:33:59 2022
+getmeasure 65 date_begin=1647984510 Tue Mar 22 15:28:30 2022
+getmeasure 66 date_begin=1648293443 Sat Mar 26 05:17:23 2022
+getmeasure 67 date_begin=1648601926 Tue Mar 29 18:58:46 2022
+getmeasure 68 date_begin=1648911333 Sat Apr  2 08:55:33 2022
+getmeasure 69 date_begin=1649220514 Tue Apr  5 23:48:34 2022
+getmeasure 70 date_begin=1649528689 Sat Apr  9 13:24:49 2022
+getmeasure 71 date_begin=1649835931 Wed Apr 13 02:45:31 2022
+getmeasure 72 date_begin=1650144073 Sat Apr 16 16:21:13 2022
+getmeasure 73 date_begin=1650452378 Wed Apr 20 05:59:38 2022
+getmeasure 74 date_begin=1650762183 Sat Apr 23 20:03:03 2022
+getmeasure 75 date_begin=1651071949 Wed Apr 27 10:05:49 2022
+getmeasure 76 date_begin=1651386926 Sun May  1 01:35:26 2022
+getmeasure 77 date_begin=1651696313 Wed May  4 15:31:53 2022
+getmeasure 78 date_begin=1652005995 Sun May  8 05:33:15 2022
+getmeasure 79 date_begin=1652321847 Wed May 11 21:17:27 2022
+getmeasure 80 date_begin=1652632478 Sun May 15 11:34:38 2022
+getmeasure 81 date_begin=1652951173 Thu May 19 04:06:13 2022
+getmeasure 82 date_begin=1653263925 Sun May 22 18:58:45 2022
+getmeasure 83 date_begin=1653577341 Thu May 26 10:02:21 2022
+getmeasure 84 date_begin=1653885390 Sun May 29 23:36:30 2022
+getmeasure 85 date_begin=1654192990 Thu Jun  2 13:03:10 2022
+#+end_example
+
+
+*** Previous results before swapping outdoor module
 #+RESULTS:
 #+begin_example
 station Privada Hijos del Ejército
@@ -87,88 +286,6 @@ module Rain Gauge - Rain Gauge
 {'body': {'1563405317': [0], '1563405611': [0], '1563405919': [0], '1563406227': [0], '1563406521': [0], '1563406829': [0], '1563407009': [0.303]}, 'status': 'ok', 'time_exec': 0.031126976013183594, 'time_server': 1563407074}
 #+end_example
 
-So the ~dump~ command works fine.  We just need to work out how to change the ~fetch~ command. 
-
-This implementation is just copied from ~netatmo.fetch~, but changing the necessary parameters to fetch data from the rain gauge. 
-
-#+begin_src python :tangle netatmo-fetch-rain.py
-  import sys
-  sys.path.append("/Users/will/Source/netatmo/src/netatmo")
-  import netatmo
-
-  def fetch_rain():
-      """
-          retrieve measures from rain station and append them to csv files
-      """
-      ws = netatmo.WeatherStation(netatmo.DEFAULT_RC_FILE)
-      if not ws.get_data():
-          return
-      station = ws.station_by_name()
-      rainmodule = station['modules'][1]
-      print("module_id    : {}".format(rainmodule['_id']))
-      print("module_name  : {}".format(rainmodule['module_name']))
-      print("data_type    : {}".format(rainmodule['data_type']))
-
-      data_type = ["Rain"]
-      netatmo.dl_csv(ws, "netatmo_rain.csv",
-                     station['_id'], rainmodule['_id'],
-                     data_type, rainmodule['dashboard_data']['time_utc'])
-
-
-  if __name__ == "__main__":
-      fetch_rain()
-
-#+end_src
-
-#+RESULTS:
-: None
-
-#+begin_src sh :results verbatim :exports both
-python netatmo-fetch-rain.py
-#+end_src
-
-#+RESULTS:
-#+begin_example
-module_id    : 05:00:00:02:d3:6c
-module_name  : Rain Gauge
-data_type    : ['Rain']
-getmeasure 1 date_begin=1615746784 Sun Mar 14 12:33:04 2021
-getmeasure 2 date_begin=1616057876 Thu Mar 18 02:57:56 2021
-getmeasure 3 date_begin=1616366103 Sun Mar 21 16:35:03 2021
-getmeasure 4 date_begin=1616673844 Thu Mar 25 06:04:04 2021
-getmeasure 5 date_begin=1616982275 Sun Mar 28 19:44:35 2021
-getmeasure 6 date_begin=1617290189 Thu Apr  1 09:16:29 2021
-getmeasure 7 date_begin=1617598743 Sun Apr  4 23:59:03 2021
-getmeasure 8 date_begin=1617907817 Thu Apr  8 13:50:17 2021
-getmeasure 9 date_begin=1618214849 Mon Apr 12 03:07:29 2021
-getmeasure 10 date_begin=1618523744 Thu Apr 15 16:55:44 2021
-getmeasure 11 date_begin=1618832317 Mon Apr 19 06:38:37 2021
-getmeasure 12 date_begin=1619141020 Thu Apr 22 20:23:40 2021
-getmeasure 13 date_begin=1619449996 Mon Apr 26 10:13:16 2021
-getmeasure 14 date_begin=1619758762 Thu Apr 29 23:59:22 2021
-getmeasure 15 date_begin=1620067016 Mon May  3 13:36:56 2021
-getmeasure 16 date_begin=1620378839 Fri May  7 04:13:59 2021
-getmeasure 17 date_begin=1620688457 Mon May 10 18:14:17 2021
-getmeasure 18 date_begin=1620996095 Fri May 14 07:41:35 2021
-getmeasure 19 date_begin=1621303438 Mon May 17 21:03:58 2021
-getmeasure 20 date_begin=1621611986 Fri May 21 10:46:26 2021
-getmeasure 21 date_begin=1621920123 Tue May 25 00:22:03 2021
-getmeasure 22 date_begin=1622232601 Fri May 28 15:10:01 2021
-getmeasure 23 date_begin=1622540585 Tue Jun  1 04:43:05 2021
-getmeasure 24 date_begin=1622853849 Fri Jun  4 19:44:09 2021
-getmeasure 25 date_begin=1623180829 Tue Jun  8 14:33:49 2021
-getmeasure 26 date_begin=1623511076 Sat Jun 12 10:17:56 2021
-getmeasure 27 date_begin=1623852135 Wed Jun 16 09:02:15 2021
-getmeasure 28 date_begin=1624159766 Sat Jun 19 22:29:26 2021
-getmeasure 29 date_begin=1624468385 Wed Jun 23 12:13:05 2021
-getmeasure 30 date_begin=1624783067 Sun Jun 27 03:37:47 2021
-getmeasure 31 date_begin=1625126226 Thu Jul  1 02:57:06 2021
-getmeasure 32 date_begin=1627269117 Sun Jul 25 22:11:57 2021
-getmeasure 33 date_begin=1627579589 Thu Jul 29 12:26:29 2021
-getmeasure 34 date_begin=1627926030 Mon Aug  2 12:40:30 2021
-#+end_example
-
-
 
 ** Download data into CSV files
 Run this periodically - it should just grab the new data (also run the rain gauge version above)
@@ -183,91 +300,96 @@ station_name : Privada Hijos del Ejército (indoor)
 device_id    : 70:ee:50:22:ce:e6
 module_name  : indoor
 data_type    : ['Temperature', 'CO2', 'Humidity', 'Noise', 'Pressure']
-module_id    : 02:00:00:22:b8:7e
-module_name  : outdoor
-data_type    : ['Temperature', 'Humidity']
-getmeasure 1 date_begin=1615746796 Sun Mar 14 12:33:16 2021
-getmeasure 2 date_begin=1616055782 Thu Mar 18 02:23:02 2021
-getmeasure 3 date_begin=1616363689 Sun Mar 21 15:54:49 2021
-getmeasure 4 date_begin=1616671129 Thu Mar 25 05:18:49 2021
-getmeasure 5 date_begin=1616979273 Sun Mar 28 18:54:33 2021
-getmeasure 6 date_begin=1617287171 Thu Apr  1 08:26:11 2021
-getmeasure 7 date_begin=1617595727 Sun Apr  4 23:08:47 2021
-getmeasure 8 date_begin=1617903297 Thu Apr  8 12:34:57 2021
-getmeasure 9 date_begin=1618210027 Mon Apr 12 01:47:07 2021
-getmeasure 10 date_begin=1618518008 Thu Apr 15 15:20:08 2021
-getmeasure 11 date_begin=1618826594 Mon Apr 19 05:03:14 2021
-getmeasure 12 date_begin=1619134986 Thu Apr 22 18:43:06 2021
-getmeasure 13 date_begin=1619443961 Mon Apr 26 08:32:41 2021
-getmeasure 14 date_begin=1619752728 Thu Apr 29 22:18:48 2021
-getmeasure 15 date_begin=1620060984 Mon May  3 11:56:24 2021
-getmeasure 16 date_begin=1620368569 Fri May  7 01:22:49 2021
-getmeasure 17 date_begin=1620677601 Mon May 10 15:13:21 2021
-getmeasure 18 date_begin=1620985223 Fri May 14 04:40:23 2021
-getmeasure 19 date_begin=1621292941 Mon May 17 18:09:01 2021
-getmeasure 20 date_begin=1621601125 Fri May 21 07:45:25 2021
-getmeasure 21 date_begin=1621908955 Mon May 24 21:15:55 2021
-getmeasure 22 date_begin=1622217194 Fri May 28 10:53:14 2021
-getmeasure 23 date_begin=1622523373 Mon May 31 23:56:13 2021
-getmeasure 24 date_begin=1622830006 Fri Jun  4 13:06:46 2021
-getmeasure 25 date_begin=1623135564 Tue Jun  8 01:59:24 2021
-getmeasure 26 date_begin=1623443073 Fri Jun 11 15:24:33 2021
-getmeasure 27 date_begin=1623748410 Tue Jun 15 04:13:30 2021
-getmeasure 28 date_begin=1624055593 Fri Jun 18 17:33:13 2021
-getmeasure 29 date_begin=1624363604 Tue Jun 22 07:06:44 2021
-getmeasure 30 date_begin=1624672054 Fri Jun 25 20:47:34 2021
-getmeasure 31 date_begin=1624979713 Tue Jun 29 10:15:13 2021
-getmeasure 32 date_begin=1625286822 Fri Jul  2 23:33:42 2021
-getmeasure 33 date_begin=1625594819 Tue Jul  6 13:06:59 2021
-getmeasure 34 date_begin=1625903618 Sat Jul 10 02:53:38 2021
-getmeasure 35 date_begin=1626212123 Tue Jul 13 16:35:23 2021
-getmeasure 36 date_begin=1626519443 Sat Jul 17 05:57:23 2021
-getmeasure 37 date_begin=1626827604 Tue Jul 20 19:33:24 2021
-getmeasure 38 date_begin=1627134853 Sat Jul 24 08:54:13 2021
-getmeasure 39 date_begin=1627440433 Tue Jul 27 21:47:13 2021
-getmeasure 40 date_begin=1627748266 Sat Jul 31 11:17:46 2021
-getmeasure 41 date_begin=1628056224 Wed Aug  4 00:50:24 2021
-getmeasure 1 date_begin=1615746790 Sun Mar 14 12:33:10 2021
-getmeasure 2 date_begin=1616068738 Thu Mar 18 05:58:58 2021
-getmeasure 3 date_begin=1616380298 Sun Mar 21 20:31:38 2021
-getmeasure 4 date_begin=1616692601 Thu Mar 25 11:16:41 2021
-getmeasure 5 date_begin=1617007647 Mon Mar 29 02:47:27 2021
-getmeasure 6 date_begin=1617338151 Thu Apr  1 22:35:51 2021
-getmeasure 7 date_begin=1617649730 Mon Apr  5 14:08:50 2021
-getmeasure 8 date_begin=1617963078 Fri Apr  9 05:11:18 2021
-getmeasure 9 date_begin=1618304148 Tue Apr 13 03:55:48 2021
-getmeasure 10 date_begin=1618619667 Fri Apr 16 19:34:27 2021
-getmeasure 11 date_begin=1618928972 Tue Apr 20 09:29:32 2021
-getmeasure 12 date_begin=1619240051 Fri Apr 23 23:54:11 2021
-getmeasure 13 date_begin=1619549355 Tue Apr 27 13:49:15 2021
-getmeasure 14 date_begin=1619858352 Sat May  1 03:39:12 2021
-getmeasure 15 date_begin=1620167246 Tue May  4 17:27:26 2021
-getmeasure 16 date_begin=1620475166 Sat May  8 06:59:26 2021
-getmeasure 17 date_begin=1620784419 Tue May 11 20:53:39 2021
-getmeasure 18 date_begin=1621092595 Sat May 15 10:29:55 2021
-getmeasure 19 date_begin=1621400567 Wed May 19 00:02:47 2021
-getmeasure 20 date_begin=1621710434 Sat May 22 14:07:14 2021
-getmeasure 21 date_begin=1622019124 Wed May 26 03:52:04 2021
-getmeasure 22 date_begin=1622327556 Sat May 29 17:32:36 2021
-getmeasure 23 date_begin=1622633882 Wed Jun  2 06:38:02 2021
-getmeasure 24 date_begin=1622946416 Sat Jun  5 21:26:56 2021
-getmeasure 25 date_begin=1623253310 Wed Jun  9 10:41:50 2021
-getmeasure 26 date_begin=1623561114 Sun Jun 13 00:11:54 2021
-getmeasure 27 date_begin=1623867811 Wed Jun 16 13:23:31 2021
-getmeasure 28 date_begin=1624176346 Sun Jun 20 03:05:46 2021
-getmeasure 29 date_begin=1624485714 Wed Jun 23 17:01:54 2021
-getmeasure 30 date_begin=1624796037 Sun Jun 27 07:13:57 2021
-getmeasure 31 date_begin=1625104450 Wed Jun 30 20:54:10 2021
-getmeasure 32 date_begin=1625413011 Sun Jul  4 10:36:51 2021
-getmeasure 33 date_begin=1625722007 Thu Jul  8 00:26:47 2021
-getmeasure 34 date_begin=1626031677 Sun Jul 11 14:27:57 2021
-getmeasure 35 date_begin=1626340795 Thu Jul 15 04:19:55 2021
-getmeasure 36 date_begin=1626649688 Sun Jul 18 18:08:08 2021
-getmeasure 37 date_begin=1626958378 Thu Jul 22 07:52:58 2021
-getmeasure 38 date_begin=1627265170 Sun Jul 25 21:06:10 2021
-getmeasure 39 date_begin=1627573230 Thu Jul 29 10:40:30 2021
-getmeasure 40 date_begin=1627886950 Mon Aug  2 01:49:10 2021
-getmeasure 41 date_begin=1628197908 Thu Aug  5 16:11:48 2021
+module_id    : 05:00:00:02:d3:6c
+module_name  : Rain Gauge
+data_type    : ['Rain']
+getmeasure 1 date_begin=1628257369 Fri Aug  6 08:42:49 2021
+getmeasure 2 date_begin=1628564669 Mon Aug  9 22:04:29 2021
+getmeasure 3 date_begin=1628872452 Fri Aug 13 11:34:12 2021
+getmeasure 4 date_begin=1629180584 Tue Aug 17 01:09:44 2021
+getmeasure 5 date_begin=1629489104 Fri Aug 20 14:51:44 2021
+getmeasure 6 date_begin=1629796022 Tue Aug 24 04:07:02 2021
+getmeasure 7 date_begin=1630103038 Fri Aug 27 17:23:58 2021
+getmeasure 8 date_begin=1630410396 Tue Aug 31 06:46:36 2021
+getmeasure 9 date_begin=1630717270 Fri Sep  3 20:01:10 2021
+getmeasure 10 date_begin=1631025100 Tue Sep  7 09:31:40 2021
+getmeasure 11 date_begin=1631332196 Fri Sep 10 22:49:56 2021
+getmeasure 12 date_begin=1631638923 Tue Sep 14 12:02:03 2021
+getmeasure 13 date_begin=1631947123 Sat Sep 18 01:38:43 2021
+getmeasure 14 date_begin=1632255181 Tue Sep 21 15:13:01 2021
+getmeasure 15 date_begin=1632563867 Sat Sep 25 04:57:47 2021
+getmeasure 16 date_begin=1632872055 Tue Sep 28 18:34:15 2021
+getmeasure 17 date_begin=1633181530 Sat Oct  2 08:32:10 2021
+getmeasure 18 date_begin=1633489849 Tue Oct  5 22:10:49 2021
+getmeasure 19 date_begin=1633797951 Sat Oct  9 11:45:51 2021
+getmeasure 20 date_begin=1634105687 Wed Oct 13 01:14:47 2021
+getmeasure 21 date_begin=1634413708 Sat Oct 16 14:48:28 2021
+getmeasure 22 date_begin=1634721692 Wed Oct 20 04:21:32 2021
+getmeasure 23 date_begin=1635030317 Sat Oct 23 18:05:17 2021
+getmeasure 24 date_begin=1635337959 Wed Oct 27 07:32:39 2021
+getmeasure 25 date_begin=1635645516 Sat Oct 30 20:58:36 2021
+getmeasure 26 date_begin=1635954054 Wed Nov  3 09:40:54 2021
+getmeasure 27 date_begin=1636262056 Sat Nov  6 23:14:16 2021
+getmeasure 28 date_begin=1636570940 Wed Nov 10 13:02:20 2021
+getmeasure 29 date_begin=1636879672 Sun Nov 14 02:47:52 2021
+getmeasure 30 date_begin=1637188732 Wed Nov 17 16:38:52 2021
+getmeasure 31 date_begin=1637496577 Sun Nov 21 06:09:37 2021
+getmeasure 32 date_begin=1637805144 Wed Nov 24 19:52:24 2021
+getmeasure 33 date_begin=1638114430 Sun Nov 28 09:47:10 2021
+getmeasure 34 date_begin=1638422062 Wed Dec  1 23:14:22 2021
+getmeasure 35 date_begin=1638729596 Sun Dec  5 12:39:56 2021
+getmeasure 36 date_begin=1639035842 Thu Dec  9 01:44:02 2021
+getmeasure 37 date_begin=1639344530 Sun Dec 12 15:28:50 2021
+getmeasure 38 date_begin=1639653210 Thu Dec 16 05:13:30 2021
+getmeasure 39 date_begin=1639959121 Sun Dec 19 18:12:01 2021
+getmeasure 40 date_begin=1640267517 Thu Dec 23 07:51:57 2021
+getmeasure 41 date_begin=1640574404 Sun Dec 26 21:06:44 2021
+getmeasure 42 date_begin=1640883300 Thu Dec 30 10:55:00 2021
+getmeasure 43 date_begin=1641190490 Mon Jan  3 00:14:50 2022
+getmeasure 44 date_begin=1641498871 Thu Jan  6 13:54:31 2022
+getmeasure 45 date_begin=1641806867 Mon Jan 10 03:27:47 2022
+getmeasure 46 date_begin=1642115335 Thu Jan 13 17:08:55 2022
+getmeasure 47 date_begin=1642423021 Mon Jan 17 06:37:01 2022
+getmeasure 48 date_begin=1642730850 Thu Jan 20 20:07:30 2022
+getmeasure 49 date_begin=1643039760 Mon Jan 24 09:56:00 2022
+getmeasure 50 date_begin=1643347484 Thu Jan 27 23:24:44 2022
+getmeasure 51 date_begin=1643656169 Mon Jan 31 13:09:29 2022
+getmeasure 52 date_begin=1643964139 Fri Feb  4 02:42:19 2022
+getmeasure 53 date_begin=1644272155 Mon Feb  7 16:15:55 2022
+getmeasure 54 date_begin=1644580617 Fri Feb 11 05:56:57 2022
+getmeasure 55 date_begin=1644888840 Mon Feb 14 19:34:00 2022
+getmeasure 56 date_begin=1645197130 Fri Feb 18 09:12:10 2022
+getmeasure 57 date_begin=1645504903 Mon Feb 21 22:41:43 2022
+getmeasure 58 date_begin=1645813050 Fri Feb 25 12:17:30 2022
+getmeasure 59 date_begin=1646120839 Tue Mar  1 01:47:19 2022
+getmeasure 60 date_begin=1646428674 Fri Mar  4 15:17:54 2022
+getmeasure 61 date_begin=1646737403 Tue Mar  8 05:03:23 2022
+getmeasure 62 date_begin=1647046418 Fri Mar 11 18:53:38 2022
+getmeasure 63 date_begin=1647354378 Tue Mar 15 08:26:18 2022
+getmeasure 64 date_begin=1647660745 Fri Mar 18 21:32:25 2022
+getmeasure 65 date_begin=1647970015 Tue Mar 22 11:26:55 2022
+getmeasure 66 date_begin=1648278948 Sat Mar 26 01:15:48 2022
+getmeasure 67 date_begin=1648587442 Tue Mar 29 14:57:22 2022
+getmeasure 68 date_begin=1648896831 Sat Apr  2 04:53:51 2022
+getmeasure 69 date_begin=1649206025 Tue Apr  5 19:47:05 2022
+getmeasure 70 date_begin=1649514367 Sat Apr  9 09:26:07 2022
+getmeasure 71 date_begin=1649821443 Tue Apr 12 22:44:03 2022
+getmeasure 72 date_begin=1650129866 Sat Apr 16 12:24:26 2022
+getmeasure 73 date_begin=1650437885 Wed Apr 20 01:58:05 2022
+getmeasure 74 date_begin=1650745259 Sat Apr 23 15:20:59 2022
+getmeasure 75 date_begin=1651053523 Wed Apr 27 04:58:43 2022
+getmeasure 76 date_begin=1651362181 Sat Apr 30 18:43:01 2022
+getmeasure 77 date_begin=1651671553 Wed May  4 08:39:13 2022
+getmeasure 78 date_begin=1651980340 Sat May  7 22:25:40 2022
+getmeasure 79 date_begin=1652288320 Wed May 11 11:58:40 2022
+getmeasure 80 date_begin=1652596453 Sun May 15 01:34:13 2022
+getmeasure 81 date_begin=1652905284 Wed May 18 15:21:24 2022
+getmeasure 82 date_begin=1653213754 Sun May 22 05:02:34 2022
+getmeasure 83 date_begin=1653521892 Wed May 25 18:38:12 2022
+getmeasure 84 date_begin=1653829903 Sun May 29 08:11:43 2022
+getmeasure 85 date_begin=1654137399 Wed Jun  1 21:36:39 2022
+getmeasure 86 date_begin=1654445171 Sun Jun  5 11:06:11 2022
+getmeasure 1 date_begin=1628257328 Fri Aug  6 08:42:08 2021
 #+end_example
 ** DONE Make graphs
 CLOSED: [2018-03-11 Sun 00:02]

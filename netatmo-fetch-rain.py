@@ -10,7 +10,7 @@ def fetch_rain():
     if not ws.get_data():
         return
     station = ws.station_by_name()
-    rainmodule = station['modules'][1]
+    rainmodule = station['modules'][0]
     print("module_id    : {}".format(rainmodule['_id']))
     print("module_name  : {}".format(rainmodule['module_name']))
     print("data_type    : {}".format(rainmodule['data_type']))
